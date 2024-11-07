@@ -25,7 +25,7 @@ const SignUpScreen = () => {
       }}
       >
         <View style={styles.container}>
-          <Stack.Screen options={{ title: 'Sign up' }} />
+          <Stack.Screen options={{ title: 'RJ Bird Builders', headerShown: true, headerBackVisible: false }} />
           <View
             style={{
               flex: 1,
@@ -42,34 +42,45 @@ const SignUpScreen = () => {
               source={require("../../../assets/images/register.png")}
             />
           </View>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            value={email}
-            onChangeText={setEmail}
-            placeholder="jon@gmail.com"
-            style={styles.input}
-          />
+          <Text style={styles.title}>Create Account</Text>
 
-          <Text style={styles.label}>Password</Text>
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            placeholder=""
-            style={styles.input}
-            secureTextEntry
-          />
-
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              value={email}
+              onChangeText={setEmail}
+              placeholder="jon@gmail.com"
+              style={styles.input}
+              keyboardType="email-address"
+              placeholderTextColor={"#7e8a8c"}
+            />
+          </View>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Password</Text>
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Enter your password"
+              style={styles.input}
+              secureTextEntry
+              placeholderTextColor={"#7e8a8c"}
+            />
+          </View>
           <Button
             onPress={signUpWithEmail}
             disabled={loading}
             text={loading ? 'Creating account...' : 'Create account'}
           />
-          <Link href="/sign-in" style={styles.textButton}>
-            Sign in
-          </Link>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <Text style={{ fontSize: 16 }}>Already have an account?</Text>
+            <Link href="/sign-in" style={styles.textButton}>
+              Sign in
+            </Link>
+          </View>
+
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAvoidingView >
   );
 };
 
@@ -77,25 +88,39 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     justifyContent: 'center',
+    backgroundColor: 'white',
     flex: 1,
+    paddingBottom: 50,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  inputGroup: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 10,
+    marginBottom: 20,
   },
   label: {
-    color: 'gray',
+    fontWeight: "500",
+    fontSize: 16,
+    color: "#193238"
   },
   input: {
-    borderWidth: 1,
-    borderColor: 'gray',
-    padding: 10,
-    marginTop: 5,
-    marginBottom: 20,
-    backgroundColor: 'white',
-    borderRadius: 5,
+    borderWidth: 0,
+    padding: 16,
+    backgroundColor: '#EBEDED',
+    borderRadius: 8,
+    color: "#7e8a8c"
+
   },
   textButton: {
+    fontSize: 16,
     alignSelf: 'center',
     fontWeight: 'bold',
     color: Colors.light.tint,
-    marginVertical: 10,
   },
 });
 

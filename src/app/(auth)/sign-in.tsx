@@ -35,8 +35,8 @@ const SignInScreen = () => {
       }}
       >
         <View style={styles.container}>
-          <Stack.Screen options={{ title: 'Sign in' }} />
-
+          <Stack.Screen options={{ title: 'RJ Bird Builders' }} />
+          <Text style={styles.title}>Welcome Back!</Text>
           <View
             style={{
               flex: 1,
@@ -54,31 +54,39 @@ const SignInScreen = () => {
             />
           </View>
 
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            value={email}
-            onChangeText={setEmail}
-            placeholder="jon@gmail.com"
-            style={styles.input}
-          />
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Email Address</Text>
+            <TextInput
+              value={email}
+              onChangeText={setEmail}
+              placeholder="jon@gmail.com"
+              style={styles.input}
+              placeholderTextColor={"#7e8a8c"}
+            />
+          </View>
 
-          <Text style={styles.label}>Password</Text>
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            placeholder=""
-            style={styles.input}
-            secureTextEntry
-          />
-
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Password</Text>
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Enter your password"
+              style={styles.input}
+              secureTextEntry
+              placeholderTextColor={"#7e8a8c"}
+            />
+          </View>
           <Button
             onPress={signInWithEmail}
             disabled={loading}
             text={loading ? 'Signing in...' : 'Sign in'}
           />
-          <Link href="/sign-up" style={styles.textButton}>
-            Create an account
-          </Link>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <Text style={{ fontSize: 16 }}>Don't have an account?</Text>
+            <Link href="/sign-up" style={styles.textButton}>
+              Sign up
+            </Link>
+          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -89,26 +97,40 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     justifyContent: 'center',
+    backgroundColor: 'white',
     flex: 1,
+    paddingBottom: 50,
+
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  inputGroup: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 8,
+    marginBottom: 20,
   },
   label: {
-    fontWeight: "bold",
-    fontSize: 18
+    fontWeight: "500",
+    fontSize: 16,
+    color: "#193238"
   },
   input: {
-    borderWidth: 1,
-    borderColor: 'gray',
-    padding: 10,
-    marginTop: 5,
-    marginBottom: 20,
-    backgroundColor: 'white',
-    borderRadius: 5,
+    borderWidth: 0,
+    padding: 16,
+    backgroundColor: '#EBEDED',
+    borderRadius: 8,
+    color: "#7e8a8c"
+
   },
   textButton: {
+    fontSize: 16,
     alignSelf: 'center',
     fontWeight: 'bold',
     color: Colors.light.tint,
-    marginVertical: 10,
   },
 });
 

@@ -28,7 +28,7 @@ export default function RootLayout() {
   }
 
   return (
-    // <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AuthProvider>
         <QueryProvider>
           <Stack>
@@ -38,6 +38,6 @@ export default function RootLayout() {
           </Stack>
         </QueryProvider>
       </AuthProvider>
-    // </ThemeProvider>
+    </ThemeProvider>
   );
 }

@@ -19,13 +19,13 @@ const Button = forwardRef<View | null, ButtonProps>(
 const styles = StyleSheet.create({
     container: {
         backgroundColor: Colors.light.tint,
-        padding: 15,
+        padding: 16,
         alignItems: 'center',
-        borderRadius: 100,
+        borderRadius: 8,
         marginVertical: 10,
     },
     text: {
-        fontSize: 16,
+        fontSize: 20,
         fontWeight: '600',
         color: 'white',
     },
