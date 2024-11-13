@@ -1,24 +1,43 @@
-import 'react-native-url-polyfill/auto';
+import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 
 const ExpoSecureStoreAdapter = {
-  getItem: (key: string) => {
-    return SecureStore.getItemAsync(key);
+  getItem: async (key: string) => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined' && window.localStorage) {
+      // Use localStorage on the web
+      return Promise.resolve(window.localStorage.getItem(key));
+    } else {
+      // Use SecureStore or AsyncStorage on mobile
+      return await SecureStore.getItemAsync(key);
+    }
   },
-  setItem: (key: string, value: string) => {
-    SecureStore.setItemAsync(key, value);
+  setItem: async (key: string, value: string) => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined' && window.localStorage) {
+      // Use localStorage on the web
+      return Promise.resolve(window.localStorage.setItem(key, value));
+    } else {
+      // Use SecureStore or AsyncStorage on mobile
+      return await SecureStore.setItemAsync(key, value);
+    }
   },
-  removeItem: (key: string) => {
-    SecureStore.deleteItemAsync(key);
+  removeItem: async (key: string) => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined' && window.localStorage) {
+      // Use localStorage on the web
+      return Promise.resolve(window.localStorage.removeItem(key));
+    } else {
+      // Use SecureStore or AsyncStorage on mobile
+      return await SecureStore.deleteItemAsync(key);
+    }
   },
 };
 
+// Your Supabase credentials
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
 
-console.log(supabaseUrl, supabaseAnonKey);
-
+console.log('supabaseUrl', supabaseUrl, 'supabaseAnonKey', supabaseAnonKey);
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage: ExpoSecureStoreAdapter as any,

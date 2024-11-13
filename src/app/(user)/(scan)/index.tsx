@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text, Button } from 'react-native-paper';
 import { CameraView, Camera } from "expo-camera";
-import { router } from 'expo-router';
+import { router, Stack } from 'expo-router';
 
 export default function ScanScreen() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
@@ -19,11 +19,11 @@ export default function ScanScreen() {
 
   const handleBarCodeScanned = async ({ data }: { data: string }) => {
     setScanned(true);
+    console.log(data);
     try {
-      const projectData = JSON.parse(data);
       router.push({
-        pathname: '/project/[projectId]',
-        params: { projectId: projectData.id }
+        pathname: '/(user)/(scan)/[scannedProjectId]',
+        params: { scannedProjectId: data }
       });
     } catch (error) {
       alert('Invalid QR code');
@@ -48,9 +48,10 @@ export default function ScanScreen() {
 
   return (
     <View style={styles.container}>
+      <Stack.Screen options={{ title: 'Scan QR Code' }} />
       <CameraView
-        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-        barCodeScannerSettings={{
+        onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+        barcodeScannerSettings={{
           barcodeTypes: ["qr", "pdf417"],
         }}
         style={StyleSheet.absoluteFillObject}

@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import { useNavigation } from 'expo-router';
+import { useRouter } from 'expo-router';
 
 // Sample data for the projects
-const projects = [
+export const projects = [
   { id: '1', name: 'Project Alpha', status: 'Ongoing', image: require('@/assets/images/project1.png') },
   { id: '2', name: 'Project Beta', status: 'Completed', image: require('@/assets/images/project2.png') },
   { id: '3', name: 'Project Gamma', status: 'Ongoing', image: require('@/assets/images/project3.png') },
@@ -18,9 +18,12 @@ const projects = [
 ];
 
 const Projects = () => {
-  const navigation = useNavigation();
+  const router = useRouter();
   const handleProjectPress = (project: { id: string; name: string; status: string; image: any }) => {
-    // navigation.navigate('ProjectDetails', { project });
+    router.push({
+      pathname: '/(user)/(home)/[projectId]',
+      params: { projectId: project.id }
+    });
   }
   return (
     <View style={styles.container}>
@@ -40,7 +43,7 @@ const Projects = () => {
                   <Text style={styles.markButtonText}>Mark as...</Text>
                 </TouchableOpacity>
                 
-                <TouchableOpacity style={styles.detailsButton}>
+                <TouchableOpacity style={styles.detailsButton} onPress={() => handleProjectPress(project)}>
                   <Text style={styles.detailsButtonText}>View Details</Text>
                 </TouchableOpacity>
               </View>

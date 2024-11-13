@@ -1,59 +1,65 @@
-// screens/ProjectDetailsScreen.js
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation} from '@react-navigation/native';
+import { useLocalSearchParams } from 'expo-router';
+import { projects } from './Projects';
 
 const ProjectDetails = () => {
   const navigation = useNavigation();
-  const route = useRoute();
-
-  // Get project data from route params
-  const { project } = route.params;
+  const { projectId } = useLocalSearchParams();
+  const project = projects.find((p) => p.id === projectId);
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-        <Text style={styles.backButtonText}>← Back</Text>
-      </TouchableOpacity>
+    <>
+      {
+        !project ? (
+          <Text>Project not found</Text>
+        ) :
+          <View style={styles.container}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+              <Text style={styles.backButtonText}>← Back</Text>
+            </TouchableOpacity>
 
-      <Text style={styles.header}>Project Details</Text>
+            <Text style={styles.header}>Project Details</Text>
 
-      <View style={styles.projectCard}>
-        <Image source={project.image} style={styles.projectImage} />
-        <View style={styles.projectInfo}>
-          <Text style={styles.projectName}>{project.name}</Text>
-          <Text style={styles.projectStatus}>Status: {project.status}</Text>
-        </View>
-      </View>
+            <View style={styles.projectCard}>
+              <Image source={project.image} style={styles.projectImage} />
+              <View style={styles.projectInfo}>
+                <Text style={styles.projectName}>{project.name}</Text>
+                <Text style={styles.projectStatus}>Status: {project.status}</Text>
+              </View>
+            </View>
 
-      <View style={styles.detailsSection}>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Address</Text>
-          <Text style={styles.detailText}>123 Example St, City, State, ZIP</Text>
-        </View>
+            <View style={styles.detailsSection}>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Address</Text>
+                <Text style={styles.detailText}>123 Example St, City, State, ZIP</Text>
+              </View>
 
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Owner</Text>
-          <Text style={styles.detailText}>John Smith</Text>
-        </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Owner</Text>
+                <Text style={styles.detailText}>John Smith</Text>
+              </View>
 
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Contact</Text>
-          <Text style={styles.detailText}>john.smith@example.com</Text>
-        </View>
-      </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Contact</Text>
+                <Text style={styles.detailText}>john.smith@example.com</Text>
+              </View>
+            </View>
 
-      <View style={styles.statusSection}>
-        <View style={styles.statusRow}>
-          <Text style={styles.statusLabel}>Current Status</Text>
-          <Text style={styles.statusValue}>In Progress</Text>
-        </View>
-      </View>
+            <View style={styles.statusSection}>
+              <View style={styles.statusRow}>
+                <Text style={styles.statusLabel}>Current Status</Text>
+                <Text style={styles.statusValue}>In Progress</Text>
+              </View>
+            </View>
 
-      <TouchableOpacity style={styles.backToProjectsButton} onPress={() => navigation.goBack()}>
-        <Text style={styles.backToProjectsButtonText}>Back to Projects</Text>
-      </TouchableOpacity>
-    </View>
+            <TouchableOpacity style={styles.backToProjectsButton} onPress={() => navigation.goBack()}>
+              <Text style={styles.backToProjectsButtonText}>Back to Projects</Text>
+            </TouchableOpacity>
+          </View>
+      }
+    </>
   );
 };
 
