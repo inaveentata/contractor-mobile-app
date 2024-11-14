@@ -1,8 +1,10 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import { useNavigation} from '@react-navigation/native';
+import { useNavigation } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
 import { projects } from './Projects';
+import { Stack } from 'expo-router';
+import { IconButton } from 'react-native-paper';
 
 const ProjectDetails = () => {
   const navigation = useNavigation();
@@ -16,11 +18,25 @@ const ProjectDetails = () => {
           <Text>Project not found</Text>
         ) :
           <View style={styles.container}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Stack.Screen
+              options={{
+                headerShown: true,
+                headerTitle: 'Project Details',
+                headerLeft: () => (
+                  <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <IconButton icon="arrow-left" size={24} />
+                  </TouchableOpacity>
+                ),
+                // headerRight: () => (
+                //   <TouchableOpacity onPress={() => { /* add navigation for help */ }}>
+                //     <IconButton icon="help-circle-outline" size={24} />
+                //   </TouchableOpacity>
+                // ),
+              }}
+            />
+            {/* <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
               <Text style={styles.backButtonText}>← Back</Text>
-            </TouchableOpacity>
-
-            <Text style={styles.header}>Project Details</Text>
+            </TouchableOpacity> */}
 
             <View style={styles.projectCard}>
               <Image source={project.image} style={styles.projectImage} />

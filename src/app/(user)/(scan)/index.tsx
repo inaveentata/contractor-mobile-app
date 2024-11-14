@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Text, Button } from 'react-native-paper';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { Text, IconButton } from 'react-native-paper';
 import { CameraView, Camera } from "expo-camera";
 import { router, Stack } from 'expo-router';
+import Button  from '@/src/components/Button';
 
 export default function ScanScreen() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
@@ -17,7 +18,7 @@ export default function ScanScreen() {
     getBarCodeScannerPermissions();
   }, []);
 
-  const handleBarCodeScanned = async ({ data }: { data: string }) => {
+  const handleBarCodeScanned = async ({ data }: { data: string; }) => {
     setScanned(true);
     console.log(data);
     try {
@@ -48,22 +49,42 @@ export default function ScanScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: 'Scan QR Code' }} />
-      <CameraView
-        onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
-        barcodeScannerSettings={{
-          barcodeTypes: ["qr", "pdf417"],
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          headerTitle: 'QR Code Scanner',
+          // headerLeft: () => (
+          //   <TouchableOpacity onPress={() => { /* add navigation to go back */ }}>
+          //     <IconButton icon="arrow-left" size={24} />
+          //   </TouchableOpacity>
+          // ),
+          // headerRight: () => (
+          //   <TouchableOpacity onPress={() => { /* add navigation for help */ }}>
+          //     <IconButton icon="help-circle-outline" size={24} />
+          //   </TouchableOpacity>
+          // ),
         }}
-        style={StyleSheet.absoluteFillObject}
       />
+      <Text style={styles.title}>Scan QR Code</Text>
+      <View style={styles.cameraContainer}>
+        <CameraView
+          onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+          barcodeScannerSettings={{
+            barcodeTypes: ["qr", "pdf417"],
+          }}
+          style={styles.camera}
+        />
+      </View>
+      <Text style={styles.instructions}>How to Scan</Text>
+      <Text style={styles.description}>
+        To scan a QR code, align the code within the square border area. The scanner will automatically detect the code and process it.
+      </Text>
       {scanned && (
         <Button
-          mode="contained"
           onPress={() => setScanned(false)}
           style={styles.button}
-        >
-          Scan Again
-        </Button>
+          text="Scan Again"
+        />
       )}
     </View>
   );
@@ -72,10 +93,44 @@ export default function ScanScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'column',
+    backgroundColor: '#ffffff',
+    alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  cameraContainer: {
+    width: 250,
+    height: 250,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 20,
+  },
+  camera: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginTop: 20,
+    textAlign: 'center',
+  },
+  instructions: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 20,
+    textAlign: 'center',
+  },
+  description: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    paddingHorizontal: 10,
+    marginTop: 10,
   },
   button: {
-    margin: 20,
+    marginTop: 20,
   },
 });
