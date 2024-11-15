@@ -110,11 +110,11 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   markButtonText: {
-    color: '#00A4F2',
+    color: '#17C6ED',
     fontSize: 14,
   },
   detailsButton: {
-    backgroundColor: '#00A4F2',
+    backgroundColor: '#17C6ED',
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 5,
