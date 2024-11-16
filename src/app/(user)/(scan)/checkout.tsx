@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Button, FlatList } from 'react-native';
-import { useLocalSearchParams, useNavigation, Stack, useRouter } from 'expo-router';
-import { Checkbox, IconButton } from 'react-native-paper';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
+import { Checkbox } from 'react-native-paper';
+import { Stack, useGlobalSearchParams } from 'expo-router';
 import { supabase } from '@/src/lib/supabase';
+import Button from '@/src/components/Button';
 
 
 type Props = {};
@@ -14,53 +15,50 @@ type ProjectDetailsProps = {
     emergency_contact: string;
 };
 
-const ScannedProject = (props: Props) => {
-    const router = useRouter();
-    const [isLocationCorrect, setIsLocationCorrect] = useState(false);
-    const { scannedProjectId } = useLocalSearchParams();
-    const [checkedIn, setCheckedIn] = useState(false);
+const checklistMockdata = [
+    { id: '1', name: 'Confirmed completion of daily tasks', checked: false },
+    { id: '2', name: 'Submitted all required documents', checked: false },
+    { id: '3', name: 'Acknowledge that I have completed ...', checked: false },
+];
+const CheckoutScreenById = (props: Props) => {
+    const { checkoutId } = useGlobalSearchParams();
     const [projectData, setProjectData] = useState<ProjectDetailsProps | null>(null);
+    const [checklist, setChecklist] = useState(checklistMockdata);
 
     useEffect(() => {
         const fetchProjectData = async () => {
-            const { data } = await supabase.from('projects').select('*').eq('id', scannedProjectId).single();
+            const { data } = await supabase.from('projects').select('*').eq('id', checkoutId).single();
             setProjectData(data);
         };
         fetchProjectData();
-    }, [scannedProjectId]);
+    }, [checkoutId]);
 
-
-
-    const handleCheckIn = () => {
-        setCheckedIn(true);
-        router.push({
-            pathname: '/(user)/(scan)/checkout',
-            params: { checkoutId: scannedProjectId as string }
-        });
-
+    const handleConfirmCheckout = () => {
+        // Log check-in activity in database or perform other actions here
     };
 
-    const handleCheckOut = () => {
-        setCheckedIn(false);
-        router.push({
-            pathname: '/(user)/(scan)/checkout',
-            params: { checkoutId: scannedProjectId as string }
+    const updateChecklistItem = (id: string, checked: boolean) => {
+        const updatedChecklist = checklist.map(item => {
+            if (item.id === id) {
+                return { ...item, checked };
+            }
+            return item;
         });
-
+        setChecklist(updatedChecklist);
     };
-    const documents = [
-        { id: '1', name: 'Sefety Briefing Checklist' },
-        { id: '2', name: 'Site accessibility plan' },
-        { id: '3', name: 'Emergency exit plan' },
-    ];
-    const renderDocumentItem = ({ item }: { item: { id: string; name: string; }; }) => (
 
-        <View style={styles.documentItem}>
-            <Text style={styles.documentText}>{item.name}</Text>
-            {/* <Button title="View" onPress={() => handleViewDocument(item.id)} /> also change the status of the document or button */}
-            <TouchableOpacity style={styles.confirmButton}>
-                <Text style={styles.confirmButtonText}>View</Text>
-            </TouchableOpacity>
+
+    const renderChecklistItem = ({ item }: { item: { id: string; name: string; checked: boolean; }; }) => (
+
+        <View style={styles.checkboxItem}>
+            <Checkbox
+                status={item.checked ? 'checked' : 'unchecked'}
+                onPress={() => updateChecklistItem(item.id, !item.checked)}
+                color='#17c6ed'
+            />
+            <Text>
+                {item.name}
+            </Text>
         </View>
     );
     return (
@@ -68,7 +66,7 @@ const ScannedProject = (props: Props) => {
             <Stack.Screen
                 options={{
                     headerShown: true,
-                    headerTitle: 'Current Project Details'
+                    headerTitle: 'Project Check Out',
                 }}
             />
             <Text style={styles.title}>Welcome to Project {projectData?.name}</Text>
@@ -101,41 +99,16 @@ const ScannedProject = (props: Props) => {
                     <Text style={styles.detailsValue}>{projectData?.emergency_contact}</Text>
                 </View>
             </View>
-            <Text style={styles.sectionHeader}>Documents to go through</Text>
-            <Text style={styles.detailsText}>
-                Please ensure you have gone through the following documents prior to check-in. These documents are necessary for the check-in process.
-            </Text>
-            <FlatList
-                data={documents}
-                renderItem={renderDocumentItem}
-                keyExtractor={(item) => item.id}
-            />
+            <Text style={styles.sectionHeader}>Checklist</Text>
             <View style={styles.checkboxContainer}>
-                <Checkbox
-                    status={isLocationCorrect ? 'checked' : 'unchecked'}
-                    onPress={() => setIsLocationCorrect(!isLocationCorrect)}
-                    color='#17c6ed'
+
+                <FlatList
+                    data={checklist}
+                    renderItem={renderChecklistItem}
+                    keyExtractor={(item) => item.id}
                 />
-                <Text>
-                    Are you in the correct project location ?
-                </Text>
             </View>
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                    style={[styles.checkInButton, checkedIn && styles.disabledButton]}
-                    onPress={handleCheckIn}
-                    disabled={checkedIn}
-                >
-                    <Text style={styles.buttonText}>Check-in</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.checkOutButton, !checkedIn && styles.disabledButton]}
-                    onPress={handleCheckOut}
-                    disabled={!checkedIn}
-                >
-                    <Text style={styles.buttonText}>Check-out</Text>
-                </TouchableOpacity>
-            </View>
+            <Button text="Confirm check-out" onPress={handleConfirmCheckout} />
         </View>
     );
 };
@@ -173,27 +146,6 @@ const styles = StyleSheet.create({
         color: '#666666',
         fontSize: 16,
     },
-    buttonContainer: {
-        flexDirection: 'row',
-        marginVertical: 20,
-        width: '100%',
-    },
-    checkInButton: {
-        backgroundColor: '#687076',
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 5,
-        marginHorizontal: 5,
-        flex: 1,
-    },
-    checkOutButton: {
-        backgroundColor: '#17C6ED',
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 5,
-        marginHorizontal: 5,
-        flex: 1,
-    },
     disabledButton: {
         opacity: 0.5,
     },
@@ -202,7 +154,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     sectionHeader: {
-        fontSize: 16,
+        fontSize: 22,
         fontWeight: '600',
         color: '#333333',
         marginTop: 20,
@@ -235,11 +187,24 @@ const styles = StyleSheet.create({
         color: '#666666',
         fontWeight: '600',
     },
+
     checkboxContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 10,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+        marginTop: 10,
+        marginBottom: 'auto'
     },
+
+    checkboxItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 5,
+        borderBottomWidth: 1,
+        borderColor: '#ccc',
+    }
 });
 
-export default ScannedProject;
+export default CheckoutScreenById;

@@ -19,6 +19,7 @@ export default function ScanScreen() {
   }, []);
 
   const handleBarCodeScanned = async ({ data }: { data: string; }) => {
+    if (scanned) return;
     setScanned(true);
     console.log(data);
     try {
@@ -28,6 +29,7 @@ export default function ScanScreen() {
       });
     } catch (error) {
       alert('Invalid QR code');
+      setScanned(false);
     }
   };
 
@@ -53,16 +55,6 @@ export default function ScanScreen() {
         options={{
           headerShown: true,
           headerTitle: 'QR Code Scanner',
-          // headerLeft: () => (
-          //   <TouchableOpacity onPress={() => { /* add navigation to go back */ }}>
-          //     <IconButton icon="arrow-left" size={24} />
-          //   </TouchableOpacity>
-          // ),
-          // headerRight: () => (
-          //   <TouchableOpacity onPress={() => { /* add navigation for help */ }}>
-          //     <IconButton icon="help-circle-outline" size={24} />
-          //   </TouchableOpacity>
-          // ),
         }}
       />
       <Text style={styles.title}>Scan QR Code</Text>
