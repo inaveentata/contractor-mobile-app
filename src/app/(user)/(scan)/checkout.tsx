@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import { Checkbox } from 'react-native-paper';
-import { Stack, useGlobalSearchParams } from 'expo-router';
+import { Stack, useGlobalSearchParams, useRouter } from 'expo-router';
 import { supabase } from '@/src/lib/supabase';
 import Button from '@/src/components/Button';
 
@@ -21,7 +21,8 @@ const checklistMockdata = [
     { id: '3', name: 'Acknowledge that I have completed ...', checked: false },
 ];
 const CheckoutScreenById = (props: Props) => {
-    const { checkoutId } = useGlobalSearchParams();
+    const router = useRouter();
+    const { checkoutId, activityId } = useGlobalSearchParams();
     const [projectData, setProjectData] = useState<ProjectDetailsProps | null>(null);
     const [checklist, setChecklist] = useState(checklistMockdata);
 
@@ -33,8 +34,17 @@ const CheckoutScreenById = (props: Props) => {
         fetchProjectData();
     }, [checkoutId]);
 
-    const handleConfirmCheckout = () => {
-        // Log check-in activity in database or perform other actions here
+    const handleConfirmCheckout = async() => {
+        const {data, error} = await supabase.from('activity').update({
+            check_out_time: new Date().toISOString(),
+        }).eq('id', activityId).select();
+        if(error){
+            console.log(error);
+        }
+        if(data){
+            router.push('/(user)/(home)');
+        }
+       
     };
 
     const updateChecklistItem = (id: string, checked: boolean) => {

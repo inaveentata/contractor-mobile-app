@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Button, FlatList } from 'reac
 import { useLocalSearchParams, useNavigation, Stack, useRouter } from 'expo-router';
 import { Checkbox, IconButton } from 'react-native-paper';
 import { supabase } from '@/src/lib/supabase';
+import { useAuth } from '@/src/providers/AuthProvider';
 
 
 type Props = {};
@@ -16,6 +17,7 @@ type ProjectDetailsProps = {
 
 const ScannedProject = (props: Props) => {
     const router = useRouter();
+    const {profile} = useAuth();
     const [isLocationCorrect, setIsLocationCorrect] = useState(false);
     const { scannedProjectId } = useLocalSearchParams();
     const [checkedIn, setCheckedIn] = useState(false);
@@ -31,12 +33,22 @@ const ScannedProject = (props: Props) => {
 
 
 
-    const handleCheckIn = () => {
+    const handleCheckIn = async() => {
         setCheckedIn(true);
-        router.push({
-            pathname: '/(user)/(scan)/checkout',
-            params: { checkoutId: scannedProjectId as string }
-        });
+        const {data, error} = await supabase.from('activity').insert([{
+            project_id: scannedProjectId,
+            check_in_time: new Date().toISOString(),
+            profile_id: profile?.id
+        }]).select();
+        if(error){
+            console.log(error);
+        }
+        if(data){
+            router.push({
+                pathname: '/(user)/(scan)/checkout',
+                params: { checkoutId: scannedProjectId as string, activityId: data[0].id }
+            });
+        }
 
     };
 
