@@ -14,13 +14,15 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "contractor"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.inaveentata.contractor"
     },
     "web": {
       "bundler": "metro",
@@ -33,7 +35,15 @@
       "expo-font"
     ],
     "experiments": {
-      "typedRoutes": true,
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "0e6617a8-dd8b-4d7e-916c-8f49a10480dc"
+      }
     }
   }
 }
