@@ -1,55 +1,89 @@
-import React from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { useRouter, useFocusEffect } from 'expo-router';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../providers/AuthProvider';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
-// Sample data for the projects
-export const projects = [
-  { id: '1', name: 'Project Alpha', status: 'Ongoing', image: require('@/assets/images/project1.png') },
-  { id: '2', name: 'Project Beta', status: 'Completed', image: require('@/assets/images/project2.png') },
-  { id: '3', name: 'Project Gamma', status: 'Ongoing', image: require('@/assets/images/project3.png') },
-  { id: '4', name: 'Project Delta', status: 'Completed', image: require('@/assets/images/project4.png') },
-  { id: '5', name: 'Project Epsilon', status: 'Ongoing', image: require('@/assets/images/project5.png') },
-  { id: '11', name: 'Project Alpha', status: 'Ongoing', image: require('@/assets/images/project1.png') },
-  { id: '12', name: 'Project Beta', status: 'Completed', image: require('@/assets/images/project2.png') },
-  { id: '13', name: 'Project Gamma', status: 'Ongoing', image: require('@/assets/images/project3.png') },
-  { id: '14', name: 'Project Delta', status: 'Completed', image: require('@/assets/images/project4.png') },
-  { id: '15', name: 'Project Epsilon', status: 'Ongoing', image: require('@/assets/images/project5.png') },
-  // Add more projects as needed
-];
+
+export type ProjectProps = {
+  address: string;
+  created_at: string;
+  customer_contact: string;
+  customer_email: string;
+  customer_name: string;
+  emergency_contact: string;
+  id: string;
+  is_archive: boolean;
+  name: string;
+  qr_code_url: string;
+  site_contact: string;
+  supervisor: string;
+};
 
 const Projects = () => {
   const router = useRouter();
-  const handleProjectPress = (project: { id: string; name: string; status: string; image: any }) => {
+  const { profile } = useAuth();
+  const [projects, setProjects] = useState<ProjectProps[] | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchProjects = async () => {
+        if (profile?.id === null) return;
+        const { data, error } = await supabase
+          .from('activity')
+          .select('projects!inner(*)').eq('profile_id', profile.id);
+
+        if (error) {
+          console.error('Error fetching projects:', error);
+          return;
+        }
+
+        const uniqueProjects = Array.from(
+          new Map(data.map((activity) => [activity.projects.id, activity.projects])).values()
+        );
+
+        setProjects(uniqueProjects);
+      };
+
+      fetchProjects();
+    }, [profile?.id])
+  );
+
+  const handleProjectPress = (project: ProjectProps) => {
     router.push({
       pathname: '/(user)/(home)/[projectId]',
       params: { projectId: project.id }
     });
-  }
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.header}>All Projects you visited</Text>
-
       <ScrollView contentContainerStyle={styles.scrollView}>
-        {projects.map((project) => (
+        {projects && projects?.length > 0 ? projects?.map((project) => (
           <View key={project.id} style={styles.card}>
-            <Image source={project.image} style={styles.projectImage} />
-            
+            <FontAwesome name="building-o" size={60} color="black" style={styles.projectImage} />
+
             <View style={styles.projectInfo}>
-              <Text style={styles.projectName}>{project.name}</Text>
-              <Text style={styles.projectStatus}>{project.status}</Text>
-              
+              <Text style={styles.projectName}>{project?.name}</Text>
+              <Text style={styles.projectStatus}>{project?.address}</Text>
+
               <View style={styles.actions}>
                 <TouchableOpacity style={styles.markButton}>
                   <Text style={styles.markButtonText}>Mark as...</Text>
                 </TouchableOpacity>
-                
+
                 <TouchableOpacity style={styles.detailsButton} onPress={() => handleProjectPress(project)}>
                   <Text style={styles.detailsButtonText}>View Details</Text>
                 </TouchableOpacity>
               </View>
             </View>
           </View>
-        ))}
+        )) :
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No projects found, Start visiting projects</Text>
+          </View>
+        }
       </ScrollView>
     </View>
   );
@@ -122,6 +156,15 @@ const styles = StyleSheet.create({
   detailsButtonText: {
     color: '#FFFFFF',
     fontSize: 14,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#888888',
   },
 });
 

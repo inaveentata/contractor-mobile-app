@@ -1,15 +1,48 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
-import { projects } from './Projects';
 import { Stack } from 'expo-router';
 import { IconButton } from 'react-native-paper';
+import { supabase } from '../lib/supabase';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { ProjectProps } from './Projects';
 
 const ProjectDetails = () => {
   const navigation = useNavigation();
   const { projectId } = useLocalSearchParams();
-  const project = projects.find((p) => p.id === projectId);
+  const [project, setProject] = useState<ProjectProps | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchProject = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('projects')
+          .select('*')
+          .eq('id', projectId)
+          .single();
+
+        if (error) {
+          setError(error);
+        } else {
+          setProject(data);
+        }
+      } catch (error) {
+        setError(error as Error);
+      }
+    };
+
+    fetchProject();
+  }, [projectId]);
+
+  if (error) {
+    return <Text>Error: {error.message}</Text>;
+  }
+
+  if (!project) {
+    return <Text>Loading...</Text>;
+  }
 
   return (
     <>
@@ -34,32 +67,29 @@ const ProjectDetails = () => {
                 // ),
               }}
             />
-            {/* <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-              <Text style={styles.backButtonText}>← Back</Text>
-            </TouchableOpacity> */}
 
             <View style={styles.projectCard}>
-              <Image source={project.image} style={styles.projectImage} />
+              <FontAwesome name="building-o" size={60} color="black" style={styles.projectImage} />
               <View style={styles.projectInfo}>
                 <Text style={styles.projectName}>{project.name}</Text>
-                <Text style={styles.projectStatus}>Status: {project.status}</Text>
+                {/* <Text style={styles.projectStatus}>Status: {project.status}</Text> */}
               </View>
             </View>
 
             <View style={styles.detailsSection}>
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Address</Text>
-                <Text style={styles.detailText}>123 Example St, City, State, ZIP</Text>
+                <Text style={styles.detailText}>{project?.address}</Text>
               </View>
 
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Owner</Text>
-                <Text style={styles.detailText}>John Smith</Text>
+                <Text style={styles.detailText}>{project?.customer_name}</Text>
               </View>
 
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Contact</Text>
-                <Text style={styles.detailText}>john.smith@example.com</Text>
+                <Text style={styles.detailText}>{project?.site_contact}</Text>
               </View>
             </View>
 

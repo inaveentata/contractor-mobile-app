@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Button, FlatList } from 'react-native';
-import { useLocalSearchParams, useNavigation, Stack, useRouter } from 'expo-router';
-import { Checkbox, IconButton } from 'react-native-paper';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
+import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
+import { Checkbox } from 'react-native-paper';
 import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/providers/AuthProvider';
 
@@ -20,8 +20,8 @@ const ScannedProject = (props: Props) => {
     const {profile} = useAuth();
     const [isLocationCorrect, setIsLocationCorrect] = useState(false);
     const { scannedProjectId } = useLocalSearchParams();
-    const [checkedIn, setCheckedIn] = useState(false);
     const [projectData, setProjectData] = useState<ProjectDetailsProps | null>(null);
+    const [activityData, setActivityData] = useState<any>(null);
 
     useEffect(() => {
         const fetchProjectData = async () => {
@@ -31,10 +31,24 @@ const ScannedProject = (props: Props) => {
         fetchProjectData();
     }, [scannedProjectId]);
 
+    useEffect(()=> {
+        const fetchActivity = async () => {
+            const {data, error} = await supabase.from('activity').select('*').eq('project_id', scannedProjectId).single();
+            setActivityData(data);
+            if(error){
+                console.log(error);
+            }
+            if(data){
+                console.log(data);
+            }
+            
+        }
+        fetchActivity();
+    },[scannedProjectId]);
+
 
 
     const handleCheckIn = async() => {
-        setCheckedIn(true);
         const {data, error} = await supabase.from('activity').insert([{
             project_id: scannedProjectId,
             check_in_time: new Date().toISOString(),
@@ -53,10 +67,9 @@ const ScannedProject = (props: Props) => {
     };
 
     const handleCheckOut = () => {
-        setCheckedIn(false);
         router.push({
             pathname: '/(user)/(scan)/checkout',
-            params: { checkoutId: scannedProjectId as string }
+            params: { checkoutId: scannedProjectId as string, activityId: activityData?.id }
         });
 
     };
@@ -75,6 +88,11 @@ const ScannedProject = (props: Props) => {
             </TouchableOpacity>
         </View>
     );
+    //if user checked in and has not checked out from the last 24 hours then activate checkout, otherwise activate checkin
+    //if user has not checked in then activate checkin, 
+    //if user checked in and and checked out from the last 24 hours then activate checkin
+    const checkedIn = activityData?.check_in_time !== null && (activityData?.check_out_time === null || (new Date().getTime() - new Date(activityData?.check_out_time!).getTime()) < 24 * 60 * 60 * 1000);
+
     return (
         <View style={styles.container}>
             <Stack.Screen

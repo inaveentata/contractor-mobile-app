@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, Image, TouchableOpacity, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-native';
 import Button from '@/src/components/Button';
 import { supabase } from '@/src/lib/supabase';
 import { router, Stack, useNavigation } from 'expo-router';
@@ -30,10 +30,25 @@ export default function ProfilePage() {
     router.push('/sign-in');
   };
 
+  //generate a two letter word from the user's name
+  const generateInitials = (name: string) => {
+    const words = name.split(' ');
+    let initials = '';
+    for (let i = 0; i < words.length; i++) {
+      initials += words[i].charAt(0);
+    }
+    return initials;
+  };
 
-  const toggleEditMode = () => {
+
+  const toggleEditMode = async() => {
     if (isEditMode) {
       // Save/update logic can be added here
+      const { error } = await supabase.from('profiles').update({
+        name,
+        email,
+        mobile_number: mobile
+      }).eq('id', profile?.id);
       alert("Profile updated successfully!");
     }
     setIsEditMode(!isEditMode);
@@ -56,10 +71,9 @@ export default function ProfilePage() {
           ),
         }}
       />
-      <Image
-        source={{ uri: 'https://via.placeholder.com/150' }} // Replace with actual image source if needed
-        style={styles.profileImage}
-      />
+      <View style={styles.initialsContainer}>
+        <Text style={styles.initials}>{generateInitials(name ?? '')}</Text>
+      </View>
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>Name</Text>
         <TextInput
@@ -140,4 +154,21 @@ const styles = StyleSheet.create({
     color: '#17C6ED',
     marginRight: 15,
   },
+  initialsContainer: {  
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#f5f5f5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginBottom: 20, 
+    marginTop: 20,
+    alignSelf: 'center'
+  },
+  initials: {
+    fontSize: 30,
+    fontWeight: 'bold',
+  }
 });
