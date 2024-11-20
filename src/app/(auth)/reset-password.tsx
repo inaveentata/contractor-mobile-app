@@ -1,28 +1,18 @@
-import {
-  View, Text, TextInput, StyleSheet, Alert, ScrollView,
-  KeyboardAvoidingView,
-  Image
-} from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert, ScrollView, KeyboardAvoidingView, Image } from 'react-native';
 import React, { useState } from 'react';
-import Button from '@/src/components/Button';
-import { Colors } from '@/src/constants/Colors';
+import Button from '../../components/Button';
+import { Colors } from '../../constants/Colors';
 import { Link, Stack } from 'expo-router';
 import { supabase } from '@/src/lib/supabase';
 
-
-
-
-const SignInScreen = () => {
+const ResetPasswordScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  async function signInWithEmail() {
+  async function signUpWithEmail() {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error } = await supabase.auth.signUp({ email, password });
 
     if (error) Alert.alert(error.message);
     setLoading(false);
@@ -35,8 +25,7 @@ const SignInScreen = () => {
       }}
       >
         <View style={styles.container}>
-          <Stack.Screen options={{ title: 'RJ Bird Builders' }} />
-          <Text style={styles.title}>Welcome Back!</Text>
+          <Stack.Screen options={{ title: 'RJ Bird Builders', headerShown: true, headerBackVisible: false }} />
           <View
             style={{
               flex: 1,
@@ -50,9 +39,10 @@ const SignInScreen = () => {
                 height: 220,
                 width: 220,
               }}
-              source={require("../../../assets/images/login.png")}
+              source={require("../../../assets/images/register.png")}
             />
           </View>
+          <Text style={styles.title}>Reset Password</Text>
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Email Address</Text>
@@ -61,35 +51,36 @@ const SignInScreen = () => {
               onChangeText={setEmail}
               placeholder="jon@gmail.com"
               style={styles.input}
+              keyboardType="email-address"
               placeholderTextColor={"#7e8a8c"}
             />
           </View>
-
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Password</Text>
+            <Text style={styles.label}>New Password</Text>
             <TextInput
               value={password}
               onChangeText={setPassword}
-              placeholder="Enter your password"
+              placeholder="Enter your new password"
               style={styles.input}
               secureTextEntry
               placeholderTextColor={"#7e8a8c"}
             />
           </View>
           <Button
-            onPress={signInWithEmail}
+            onPress={signUpWithEmail}
             disabled={loading}
-            text={loading ? 'Signing in...' : 'Sign in'}
+            text={loading ? 'Resetting password...' : 'Reset Password'}
           />
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-            <Text style={{ fontSize: 16 }}>Don't have an account?</Text>
-            <Link href="/sign-up" style={styles.textButton}>
-              Sign up
+            <Text style={{ fontSize: 16 }}>Back to </Text>
+            <Link href="/sign-in" style={styles.textButton}>
+              Sign in
             </Link>
           </View>
+
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAvoidingView >
   );
 };
 
@@ -100,7 +91,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     flex: 1,
     paddingBottom: 50,
-
   },
   title: {
     fontSize: 24,
@@ -110,7 +100,7 @@ const styles = StyleSheet.create({
   inputGroup: {
     display: 'flex',
     flexDirection: 'column',
-    gap: 8,
+    gap: 10,
     marginBottom: 20,
   },
   label: {
@@ -134,4 +124,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignInScreen;
+export default ResetPasswordScreen;
