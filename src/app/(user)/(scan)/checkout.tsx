@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ScrollView } from 'react-native';
 import { Checkbox } from 'react-native-paper';
 import { Stack, useGlobalSearchParams, useRouter } from 'expo-router';
 import { supabase } from '@/src/lib/supabase';
@@ -34,17 +34,17 @@ const CheckoutScreenById = (props: Props) => {
         fetchProjectData();
     }, [checkoutId]);
 
-    const handleConfirmCheckout = async() => {
-        const {data, error} = await supabase.from('activity').update({
+    const handleConfirmCheckout = async () => {
+        const { data, error } = await supabase.from('activity').update({
             check_out_time: new Date().toISOString(),
         }).eq('id', activityId).select();
-        if(error){
+        if (error) {
             console.log(error);
         }
-        if(data){
+        if (data) {
             router.push('/(user)/(home)');
         }
-       
+
     };
 
     const updateChecklistItem = (id: string, checked: boolean) => {
@@ -57,20 +57,6 @@ const CheckoutScreenById = (props: Props) => {
         setChecklist(updatedChecklist);
     };
 
-
-    const renderChecklistItem = ({ item }: { item: { id: string; name: string; checked: boolean; }; }) => (
-
-        <View style={styles.checkboxItem}>
-            <Checkbox
-                status={item.checked ? 'checked' : 'unchecked'}
-                onPress={() => updateChecklistItem(item.id, !item.checked)}
-                color='#17c6ed'
-            />
-            <Text>
-                {item.name}
-            </Text>
-        </View>
-    );
     return (
         <View style={styles.container}>
             <Stack.Screen
@@ -79,46 +65,54 @@ const CheckoutScreenById = (props: Props) => {
                     headerTitle: 'Project Check Out',
                 }}
             />
-            <Text style={styles.title}>Welcome to Project {projectData?.name}</Text>
+            <ScrollView>
 
 
-            <Text style={styles.subtitle}>
-                This project involves the development of a new building with 3 stories...
-            </Text>
-            <Text style={styles.sectionHeader}>Project Details</Text>
+                <Text style={styles.title}>Welcome to Project {projectData?.name}</Text>
+                <Text style={styles.subtitle}>
+                    This project involves the development of a new building with 3 stories...
+                </Text>
+                <Text style={styles.sectionHeader}>Project Details</Text>
 
-            <View style={styles.detailsContainer}>
-                <View style={styles.detailsRow}>
-                    <Text style={styles.detailsLabel}>Project Name :</Text>
-                    <Text style={styles.detailsValue}>{projectData?.name}</Text>
+                <View style={styles.detailsContainer}>
+                    <View style={styles.detailsRow}>
+                        <Text style={styles.detailsLabel}>Project Name :</Text>
+                        <Text style={styles.detailsValue}>{projectData?.name}</Text>
+                    </View>
+                    <View style={styles.detailsRow}>
+                        <Text style={styles.detailsLabel}>Address :</Text>
+                        <Text style={styles.detailsValue}>{projectData?.address}</Text>
+                    </View>
+                    <View style={styles.detailsRow}>
+                        <Text style={styles.detailsLabel}>Supervisor :</Text>
+                        <Text style={styles.detailsValue}>{projectData?.supervisor}</Text>
+                    </View>
+                    <View style={styles.detailsRow}>
+                        <Text style={styles.detailsLabel}>Site contact :</Text>
+                        <Text style={styles.detailsValue}>{projectData?.site_contact}</Text>
+                    </View>
+                    <View style={styles.detailsRow}>
+                        <Text style={styles.detailsLabel}>Emergency contact :</Text>
+                        <Text style={styles.detailsValue}>{projectData?.emergency_contact}</Text>
+                    </View>
                 </View>
-                <View style={styles.detailsRow}>
-                    <Text style={styles.detailsLabel}>Address :</Text>
-                    <Text style={styles.detailsValue}>{projectData?.address}</Text>
+                <Text style={styles.sectionHeader}>Checklist</Text>
+                <View style={styles.checkboxContainer}>
+                    {checklist?.map((item) => (
+                        <View style={styles.checkboxItem}>
+                            <Checkbox
+                                status={item.checked ? 'checked' : 'unchecked'}
+                                onPress={() => updateChecklistItem(item.id, !item.checked)}
+                                color='#17c6ed'
+                            />
+                            <Text>
+                                {item.name}
+                            </Text>
+                        </View>
+                    ))}
                 </View>
-                <View style={styles.detailsRow}>
-                    <Text style={styles.detailsLabel}>Supervisor :</Text>
-                    <Text style={styles.detailsValue}>{projectData?.supervisor}</Text>
-                </View>
-                <View style={styles.detailsRow}>
-                    <Text style={styles.detailsLabel}>Site contact :</Text>
-                    <Text style={styles.detailsValue}>{projectData?.site_contact}</Text>
-                </View>
-                <View style={styles.detailsRow}>
-                    <Text style={styles.detailsLabel}>Emergency contact :</Text>
-                    <Text style={styles.detailsValue}>{projectData?.emergency_contact}</Text>
-                </View>
-            </View>
-            <Text style={styles.sectionHeader}>Checklist</Text>
-            <View style={styles.checkboxContainer}>
-
-                <FlatList
-                    data={checklist}
-                    renderItem={renderChecklistItem}
-                    keyExtractor={(item) => item.id}
-                />
-            </View>
-            <Button text="Confirm check-out" onPress={handleConfirmCheckout} />
+                <Button text="Confirm check-out" onPress={handleConfirmCheckout} />
+            </ScrollView>
         </View>
     );
 };
@@ -199,13 +193,11 @@ const styles = StyleSheet.create({
     },
 
     checkboxContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 5,
         marginTop: 10,
-        marginBottom: 'auto'
+        marginBottom: 20
     },
 
     checkboxItem: {

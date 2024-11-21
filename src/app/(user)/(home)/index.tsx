@@ -8,12 +8,6 @@ import Projects from '@/src/components/Projects';
 export default function HomeScreen() {
   return (
     <View style={{ flex: 1 }}>
-
-      {/* <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView> */}
-
       <Projects />
     </View>
   );

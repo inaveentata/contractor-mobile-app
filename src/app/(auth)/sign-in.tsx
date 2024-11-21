@@ -1,12 +1,12 @@
 import {
   View, Text, TextInput, StyleSheet, Alert, ScrollView,
   KeyboardAvoidingView,
-  Image
+  Image, TouchableOpacity
 } from 'react-native';
 import React, { useState } from 'react';
 import Button from '@/src/components/Button';
 import { Colors } from '@/src/constants/Colors';
-import { Link, Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { supabase } from '@/src/lib/supabase';
 
 
@@ -16,6 +16,12 @@ const SignInScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
+
+  const handleOnPressSignUp = () => { 
+    router.push('/sign-up');
+  };
 
   async function signInWithEmail() {
     setLoading(true);
@@ -83,9 +89,11 @@ const SignInScreen = () => {
           />
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
             <Text style={{ fontSize: 16 }}>Don't have an account?</Text>
-            <Link href="/sign-up" style={styles.textButton}>
+            <TouchableOpacity onPress={handleOnPressSignUp}>
+            <Text style={styles.textButton}>
               Sign up
-            </Link>
+            </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
@@ -99,7 +107,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'white',
     flex: 1,
-    paddingBottom: 50,
+    paddingBottom: 80,
 
   },
   title: {
