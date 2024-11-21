@@ -40,7 +40,7 @@ const Projects = () => {
         }
 
         const uniqueProjects = Array.from(
-          new Map(data.map((activity:any) => [activity.projects.id, activity.projects])).values()
+          new Map(data.map((activity: any) => [activity.projects.id, activity.projects])).values()
         );
         //@ts-ignore
         setProjects(uniqueProjects);
@@ -51,7 +51,7 @@ const Projects = () => {
   );
 
   const handleProjectPress = (project: ProjectProps) => {
-    router.push({
+    router.replace({
       pathname: '/(user)/(home)/[projectId]',
       params: { projectId: project.id }
     });

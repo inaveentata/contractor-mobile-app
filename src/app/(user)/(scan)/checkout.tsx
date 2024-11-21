@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Checkbox } from 'react-native-paper';
 import { Stack, useGlobalSearchParams, useRouter } from 'expo-router';
 import { supabase } from '@/src/lib/supabase';
 import Button from '@/src/components/Button';
+import { useEvent } from 'expo';
 
 
 type Props = {};
@@ -42,7 +43,7 @@ const CheckoutScreenById = (props: Props) => {
             console.log(error);
         }
         if (data) {
-            router.push('/(user)/(home)');
+            router.replace('/(user)/(home)');
         }
 
     };
@@ -99,7 +100,7 @@ const CheckoutScreenById = (props: Props) => {
                 <Text style={styles.sectionHeader}>Checklist</Text>
                 <View style={styles.checkboxContainer}>
                     {checklist?.map((item) => (
-                        <View style={styles.checkboxItem}>
+                        <View style={styles.checkboxItem} key={item.id}>
                             <Checkbox
                                 status={item.checked ? 'checked' : 'unchecked'}
                                 onPress={() => updateChecklistItem(item.id, !item.checked)}

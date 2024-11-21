@@ -58,7 +58,7 @@ const ScannedProject = (props: Props) => {
             console.log(error);
         }
         if (data) {
-            router.push({
+            router.replace({
                 pathname: '/(user)/(scan)/checkout',
                 params: { checkoutId: scannedProjectId as string, activityId: data[0].id }
             });
@@ -67,7 +67,7 @@ const ScannedProject = (props: Props) => {
     };
 
     const handleCheckOut = () => {
-        router.push({
+        router.replace({
             pathname: '/(user)/(scan)/checkout',
             params: { checkoutId: scannedProjectId as string, activityId: activityData?.id }
         });
@@ -78,16 +78,7 @@ const ScannedProject = (props: Props) => {
         { id: '2', name: 'Site accessibility plan' },
         { id: '3', name: 'Emergency exit plan' },
     ];
-    const renderDocumentItem = ({ item }: { item: { id: string; name: string; }; }) => (
-
-        <View style={styles.documentItem}>
-            <Text style={styles.documentText}>{item.name}</Text>
-            {/* <Button title="View" onPress={() => handleViewDocument(item.id)} /> also change the status of the document or button */}
-            <TouchableOpacity style={styles.confirmButton}>
-                <Text style={styles.confirmButtonText}>View</Text>
-            </TouchableOpacity>
-        </View>
-    );
+    
     //if user checked in and has not checked out from the last 24 hours then activate checkout, otherwise activate checkin
     //if user has not checked in then activate checkin, 
     //if user checked in and and checked out from the last 24 hours then activate checkin
