@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from 'expo-router';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router';
 import { IconButton } from 'react-native-paper';
 import { supabase } from '../lib/supabase';
@@ -13,6 +13,7 @@ const ProjectDetails = () => {
   const { projectId } = useLocalSearchParams();
   const [project, setProject] = useState<ProjectProps | null>(null);
   const [error, setError] = useState<Error | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -44,6 +45,13 @@ const ProjectDetails = () => {
     return <Text>Loading...</Text>;
   }
 
+  const handleGoBack = () => {
+    if(navigation.canGoBack()) {
+      navigation.goBack();
+    }else{
+      router.replace('/(user)/(home)');
+    }
+  }
   return (
     <>
       {
@@ -56,7 +64,7 @@ const ProjectDetails = () => {
                 headerShown: true,
                 headerTitle: 'Project Details',
                 headerLeft: () => (
-                  <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <TouchableOpacity onPress={handleGoBack}>
                     <IconButton icon="arrow-left" size={24} />
                   </TouchableOpacity>
                 ),
@@ -100,7 +108,7 @@ const ProjectDetails = () => {
               </View>
             </View>
 
-            <TouchableOpacity style={styles.backToProjectsButton} onPress={() => navigation.goBack()}>
+            <TouchableOpacity style={styles.backToProjectsButton} onPress={handleGoBack}>
               <Text style={styles.backToProjectsButtonText}>Back to Projects</Text>
             </TouchableOpacity>
           </View>

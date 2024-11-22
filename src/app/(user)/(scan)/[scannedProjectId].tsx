@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, ScrollView } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { Checkbox } from 'react-native-paper';
 import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/providers/AuthProvider';
+import { IconButton } from 'react-native-paper';
+
 
 
 type Props = {};
@@ -17,7 +19,7 @@ type ProjectDetailsProps = {
 
 const ScannedProject = (props: Props) => {
     const router = useRouter();
-    const {profile} = useAuth();
+    const { profile } = useAuth();
     const [isLocationCorrect, setIsLocationCorrect] = useState(false);
     const { scannedProjectId } = useLocalSearchParams();
     const [projectData, setProjectData] = useState<ProjectDetailsProps | null>(null);
@@ -31,34 +33,34 @@ const ScannedProject = (props: Props) => {
         fetchProjectData();
     }, [scannedProjectId]);
 
-    useEffect(()=> {
+    useEffect(() => {
         const fetchActivity = async () => {
-            const {data, error} = await supabase.from('activity').select('*').eq('project_id', scannedProjectId).single();
+            const { data, error } = await supabase.from('activity').select('*').eq('project_id', scannedProjectId).single();
             setActivityData(data);
-            if(error){
+            if (error) {
                 console.log(error);
             }
-            if(data){
+            if (data) {
                 console.log(data);
             }
-            
-        }
+
+        };
         fetchActivity();
-    },[scannedProjectId]);
+    }, [scannedProjectId]);
 
 
 
-    const handleCheckIn = async() => {
-        const {data, error} = await supabase.from('activity').insert([{
+    const handleCheckIn = async () => {
+        const { data, error } = await supabase.from('activity').insert([{
             project_id: scannedProjectId,
             check_in_time: new Date().toISOString(),
             profile_id: profile?.id
         }]).select();
-        if(error){
+        if (error) {
             console.log(error);
         }
-        if(data){
-            router.push({
+        if (data) {
+            router.replace({
                 pathname: '/(user)/(scan)/checkout',
                 params: { checkoutId: scannedProjectId as string, activityId: data[0].id }
             });
@@ -67,7 +69,7 @@ const ScannedProject = (props: Props) => {
     };
 
     const handleCheckOut = () => {
-        router.push({
+        router.replace({
             pathname: '/(user)/(scan)/checkout',
             params: { checkoutId: scannedProjectId as string, activityId: activityData?.id }
         });
@@ -78,94 +80,102 @@ const ScannedProject = (props: Props) => {
         { id: '2', name: 'Site accessibility plan' },
         { id: '3', name: 'Emergency exit plan' },
     ];
-    const renderDocumentItem = ({ item }: { item: { id: string; name: string; }; }) => (
-
-        <View style={styles.documentItem}>
-            <Text style={styles.documentText}>{item.name}</Text>
-            {/* <Button title="View" onPress={() => handleViewDocument(item.id)} /> also change the status of the document or button */}
-            <TouchableOpacity style={styles.confirmButton}>
-                <Text style={styles.confirmButtonText}>View</Text>
-            </TouchableOpacity>
-        </View>
-    );
+    
     //if user checked in and has not checked out from the last 24 hours then activate checkout, otherwise activate checkin
     //if user has not checked in then activate checkin, 
     //if user checked in and and checked out from the last 24 hours then activate checkin
     const checkedIn = activityData?.check_in_time !== null && (activityData?.check_out_time === null || (new Date().getTime() - new Date(activityData?.check_out_time!).getTime()) < 24 * 60 * 60 * 1000);
+
+    const handleGoBack = () => {
+        router.push('/(user)/(scan)');
+    };
 
     return (
         <View style={styles.container}>
             <Stack.Screen
                 options={{
                     headerShown: true,
-                    headerTitle: 'Current Project Details'
+                    headerTitle: 'Current Project Details',
+                    headerLeft: () => (
+                        <TouchableOpacity onPress={handleGoBack}>
+                          <IconButton icon="arrow-left" size={24} />
+                        </TouchableOpacity>
+                      ),
                 }}
             />
-            <Text style={styles.title}>Welcome to Project {projectData?.name}</Text>
-
-
-            <Text style={styles.subtitle}>
-                This project involves the development of a new building with 3 stories...
-            </Text>
-            <Text style={styles.sectionHeader}>Project Details</Text>
-
-            <View style={styles.detailsContainer}>
-                <View style={styles.detailsRow}>
-                    <Text style={styles.detailsLabel}>Project Name :</Text>
-                    <Text style={styles.detailsValue}>{projectData?.name}</Text>
-                </View>
-                <View style={styles.detailsRow}>
-                    <Text style={styles.detailsLabel}>Address :</Text>
-                    <Text style={styles.detailsValue}>{projectData?.address}</Text>
-                </View>
-                <View style={styles.detailsRow}>
-                    <Text style={styles.detailsLabel}>Supervisor :</Text>
-                    <Text style={styles.detailsValue}>{projectData?.supervisor}</Text>
-                </View>
-                <View style={styles.detailsRow}>
-                    <Text style={styles.detailsLabel}>Site contact :</Text>
-                    <Text style={styles.detailsValue}>{projectData?.site_contact}</Text>
-                </View>
-                <View style={styles.detailsRow}>
-                    <Text style={styles.detailsLabel}>Emergency contact :</Text>
-                    <Text style={styles.detailsValue}>{projectData?.emergency_contact}</Text>
-                </View>
-            </View>
-            <Text style={styles.sectionHeader}>Documents to go through</Text>
-            <Text style={styles.detailsText}>
-                Please ensure you have gone through the following documents prior to check-in. These documents are necessary for the check-in process.
-            </Text>
-            <FlatList
-                data={documents}
-                renderItem={renderDocumentItem}
-                keyExtractor={(item) => item.id}
-            />
-            <View style={styles.checkboxContainer}>
-                <Checkbox
-                    status={isLocationCorrect ? 'checked' : 'unchecked'}
-                    onPress={() => setIsLocationCorrect(!isLocationCorrect)}
-                    color='#17c6ed'
-                />
-                <Text>
-                    Are you in the correct project location ?
+            <ScrollView contentContainerStyle={styles.scrollView}>
+                <Text style={styles.title}>Welcome to Project {projectData?.name}</Text>
+                <Text style={styles.subtitle}>
+                    This project involves the development of a new building with 3 stories...
                 </Text>
-            </View>
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                    style={[styles.checkInButton, checkedIn && styles.disabledButton]}
-                    onPress={handleCheckIn}
-                    disabled={checkedIn}
-                >
-                    <Text style={styles.buttonText}>Check-in</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.checkOutButton, !checkedIn && styles.disabledButton]}
-                    onPress={handleCheckOut}
-                    disabled={!checkedIn}
-                >
-                    <Text style={styles.buttonText}>Check-out</Text>
-                </TouchableOpacity>
-            </View>
+                <Text style={styles.sectionHeader}>Project Details</Text>
+
+                <View style={styles.detailsContainer}>
+                    <View style={styles.detailsRow}>
+                        <Text style={styles.detailsLabel}>Project Name :</Text>
+                        <Text style={styles.detailsValue}>{projectData?.name}</Text>
+                    </View>
+                    <View style={styles.detailsRow}>
+                        <Text style={styles.detailsLabel}>Address :</Text>
+                        <Text style={styles.detailsValue}>{projectData?.address}</Text>
+                    </View>
+                    <View style={styles.detailsRow}>
+                        <Text style={styles.detailsLabel}>Supervisor :</Text>
+                        <Text style={styles.detailsValue}>{projectData?.supervisor}</Text>
+                    </View>
+                    <View style={styles.detailsRow}>
+                        <Text style={styles.detailsLabel}>Site contact :</Text>
+                        <Text style={styles.detailsValue}>{projectData?.site_contact}</Text>
+                    </View>
+                    <View style={styles.detailsRow}>
+                        <Text style={styles.detailsLabel}>Emergency contact :</Text>
+                        <Text style={styles.detailsValue}>{projectData?.emergency_contact}</Text>
+                    </View>
+                </View>
+                <Text style={styles.sectionHeader}>Documents to go through</Text>
+                <Text style={styles.detailsText}>
+                    Please ensure you have gone through the following documents prior to check-in. These documents are necessary for the check-in process.
+                </Text>
+                <View>
+                    {
+                        documents?.map((document) => (
+                            <View style={styles.documentItem} key={document.id}>
+                                <Text style={styles.documentText}>{document.name}</Text>
+                                {/* <Button title="View" onPress={() => handleViewDocument(item.id)} /> also change the status of the document or button */}
+                                <TouchableOpacity style={styles.confirmButton}>
+                                    <Text style={styles.confirmButtonText}>View</Text>
+                                </TouchableOpacity>
+                            </View>
+                        ))
+                    }
+                </View>
+                <View style={styles.checkboxContainer}>
+                    <Checkbox
+                        status={isLocationCorrect ? 'checked' : 'unchecked'}
+                        onPress={() => setIsLocationCorrect(!isLocationCorrect)}
+                        color='#17c6ed'
+                    />
+                    <Text>
+                        Are you in the correct project location ?
+                    </Text>
+                </View>
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity
+                        style={[styles.checkInButton, checkedIn && styles.disabledButton]}
+                        onPress={handleCheckIn}
+                        disabled={checkedIn}
+                    >
+                        <Text style={styles.buttonText}>Check-in</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.checkOutButton, !checkedIn && styles.disabledButton]}
+                        onPress={handleCheckOut}
+                        disabled={!checkedIn}
+                    >
+                        <Text style={styles.buttonText}>Check-out</Text>
+                    </TouchableOpacity>
+                </View>
+            </ScrollView>
         </View>
     );
 };
@@ -175,6 +185,9 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 20,
         backgroundColor: '#ffffff',
+    },
+    scrollView: {
+        paddingHorizontal: 25,
     },
     title: {
         fontSize: 24,
@@ -212,7 +225,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#687076',
         paddingVertical: 10,
         paddingHorizontal: 20,
-        borderRadius: 5,
+        borderRadius: 25,
         marginHorizontal: 5,
         flex: 1,
     },
@@ -220,7 +233,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#17C6ED',
         paddingVertical: 10,
         paddingHorizontal: 20,
-        borderRadius: 5,
+        borderRadius: 25,
         marginHorizontal: 5,
         flex: 1,
     },
