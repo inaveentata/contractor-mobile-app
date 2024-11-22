@@ -4,6 +4,8 @@ import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { Checkbox } from 'react-native-paper';
 import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/providers/AuthProvider';
+import { IconButton } from 'react-native-paper';
+
 
 
 type Props = {};
@@ -84,12 +86,21 @@ const ScannedProject = (props: Props) => {
     //if user checked in and and checked out from the last 24 hours then activate checkin
     const checkedIn = activityData?.check_in_time !== null && (activityData?.check_out_time === null || (new Date().getTime() - new Date(activityData?.check_out_time!).getTime()) < 24 * 60 * 60 * 1000);
 
+    const handleGoBack = () => {
+        router.push('/(user)/(scan)');
+    };
+
     return (
         <View style={styles.container}>
             <Stack.Screen
                 options={{
                     headerShown: true,
-                    headerTitle: 'Current Project Details'
+                    headerTitle: 'Current Project Details',
+                    headerLeft: () => (
+                        <TouchableOpacity onPress={handleGoBack}>
+                          <IconButton icon="arrow-left" size={24} />
+                        </TouchableOpacity>
+                      ),
                 }}
             />
             <ScrollView contentContainerStyle={styles.scrollView}>
@@ -214,7 +225,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#687076',
         paddingVertical: 10,
         paddingHorizontal: 20,
-        borderRadius: 5,
+        borderRadius: 25,
         marginHorizontal: 5,
         flex: 1,
     },
@@ -222,7 +233,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#17C6ED',
         paddingVertical: 10,
         paddingHorizontal: 20,
-        borderRadius: 5,
+        borderRadius: 25,
         marginHorizontal: 5,
         flex: 1,
     },

@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Checkbox } from 'react-native-paper';
 import { Stack, useGlobalSearchParams, useRouter } from 'expo-router';
 import { supabase } from '@/src/lib/supabase';
 import Button from '@/src/components/Button';
-import { useEvent } from 'expo';
-
+import { IconButton } from 'react-native-paper';
 
 type Props = {};
 type ProjectDetailsProps = {
@@ -58,23 +57,29 @@ const CheckoutScreenById = (props: Props) => {
         setChecklist(updatedChecklist);
     };
 
+    const handleGoBack = () => {
+        router.replace({
+            pathname: '/(user)/(scan)/[scannedProjectId]',
+            params: { scannedProjectId: checkoutId as string }
+        });
+    };
+
     return (
         <View style={styles.container}>
             <Stack.Screen
                 options={{
                     headerShown: true,
                     headerTitle: 'Project Check Out',
+                    headerLeft: () => (
+                        <TouchableOpacity onPress={handleGoBack}>
+                            <IconButton icon="arrow-left" size={24} />
+                        </TouchableOpacity>
+                    ),
                 }}
             />
             <ScrollView>
-
-
-                <Text style={styles.title}>Welcome to Project {projectData?.name}</Text>
-                <Text style={styles.subtitle}>
-                    This project involves the development of a new building with 3 stories...
-                </Text>
+                <Text style={styles.title}>Thanks for visiting {projectData?.name}</Text>
                 <Text style={styles.sectionHeader}>Project Details</Text>
-
                 <View style={styles.detailsContainer}>
                     <View style={styles.detailsRow}>
                         <Text style={styles.detailsLabel}>Project Name :</Text>
