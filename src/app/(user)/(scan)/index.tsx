@@ -23,7 +23,7 @@ export default function ScanScreen() {
     setScanned(true);
     console.log(data);
     try {
-      router.replace({
+      router.push({
         pathname: '/(user)/(scan)/[scannedProjectId]',
         params: { scannedProjectId: data }
       });

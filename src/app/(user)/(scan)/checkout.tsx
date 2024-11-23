@@ -5,6 +5,7 @@ import { Stack, useGlobalSearchParams, useRouter } from 'expo-router';
 import { supabase } from '@/src/lib/supabase';
 import Button from '@/src/components/Button';
 import { IconButton } from 'react-native-paper';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 type Props = {};
 type ProjectDetailsProps = {
@@ -23,28 +24,35 @@ const checklistMockdata = [
 const CheckoutScreenById = (props: Props) => {
     const router = useRouter();
     const { checkoutId, activityId } = useGlobalSearchParams();
-    const [projectData, setProjectData] = useState<ProjectDetailsProps | null>(null);
     const [checklist, setChecklist] = useState(checklistMockdata);
+    const queryClient = useQueryClient();
 
-    useEffect(() => {
-        const fetchProjectData = async () => {
+    const { data: projectData } = useQuery({
+        queryKey: ['projects', checkoutId],
+        queryFn: async () => {
             const { data } = await supabase.from('projects').select('*').eq('id', checkoutId).single();
-            setProjectData(data);
-        };
-        fetchProjectData();
-    }, [checkoutId]);
+            return data;
+        },
+        }
+    );
 
-    const handleConfirmCheckout = async () => {
+const checkoutMutation = useMutation({
+    mutationFn: async () => {
         const { data, error } = await supabase.from('activity').update({
             check_out_time: new Date().toISOString(),
         }).eq('id', activityId).select();
         if (error) {
             console.log(error);
         }
-        if (data) {
-            router.replace('/(user)/(home)');
-        }
-
+    },
+    onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['activity', checkoutId]});
+        queryClient.invalidateQueries({ queryKey: ['projects', checkoutId]});
+        router.replace('/(user)/(home)');
+    },
+})
+    const handleConfirmCheckout = () => {
+        checkoutMutation.mutate();
     };
 
     const updateChecklistItem = (id: string, checked: boolean) => {

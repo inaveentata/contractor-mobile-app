@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { Checkbox } from 'react-native-paper';
 import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/providers/AuthProvider';
 import { IconButton } from 'react-native-paper';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 
 
@@ -22,35 +23,42 @@ const ScannedProject = (props: Props) => {
     const { profile } = useAuth();
     const [isLocationCorrect, setIsLocationCorrect] = useState(false);
     const { scannedProjectId } = useLocalSearchParams();
-    const [projectData, setProjectData] = useState<ProjectDetailsProps | null>(null);
-    const [activityData, setActivityData] = useState<any>(null);
+    const queryClient = useQueryClient();
 
-    useEffect(() => {
-        const fetchProjectData = async () => {
-            const { data } = await supabase.from('projects').select('*').eq('id', scannedProjectId).single();
-            setProjectData(data);
-        };
-        fetchProjectData();
-    }, [scannedProjectId]);
+    const { data: projectData } = useQuery({
+        queryKey: ['projects', scannedProjectId],
+        queryFn: async () => {
+            if (scannedProjectId === null) return null ;
+            const { data, error } = await supabase
+                .from('projects').select('*').eq('id', scannedProjectId).single();
 
-    useEffect(() => {
-        const fetchActivity = async () => {
-            const { data, error } = await supabase.from('activity').select('*').eq('project_id', scannedProjectId).single();
-            setActivityData(data);
             if (error) {
-                console.log(error);
+                console.log('Error fetching projects:', error);
+                return null
             }
-            if (data) {
-                console.log(data);
+            return data;
+        },
+    });
+
+    const { data: activityData } = useQuery({
+        queryKey: ['activity', scannedProjectId],
+        queryFn: async () => {
+            if (scannedProjectId === null) return null
+            const { data, error } = await supabase
+                .from('activity').select('*').eq('project_id', scannedProjectId).single();
+
+            if (error) {
+                console.log('Error fetching activity:', error);
+                return null
             }
 
-        };
-        fetchActivity();
-    }, [scannedProjectId]);
-
+            return data;
+        },
+    });
 
 
     const handleCheckIn = async () => {
+        if (scannedProjectId === null) return;
         const { data, error } = await supabase.from('activity').insert([{
             project_id: scannedProjectId,
             check_in_time: new Date().toISOString(),
@@ -60,7 +68,8 @@ const ScannedProject = (props: Props) => {
             console.log(error);
         }
         if (data) {
-            router.replace({
+            await queryClient.invalidateQueries({ queryKey: ['activity'] });
+            router.push({
                 pathname: '/(user)/(scan)/checkout',
                 params: { checkoutId: scannedProjectId as string, activityId: data[0].id }
             });
@@ -69,7 +78,7 @@ const ScannedProject = (props: Props) => {
     };
 
     const handleCheckOut = () => {
-        router.replace({
+        router.push({
             pathname: '/(user)/(scan)/checkout',
             params: { checkoutId: scannedProjectId as string, activityId: activityData?.id }
         });
@@ -80,10 +89,7 @@ const ScannedProject = (props: Props) => {
         { id: '2', name: 'Site accessibility plan' },
         { id: '3', name: 'Emergency exit plan' },
     ];
-    
-    //if user checked in and has not checked out from the last 24 hours then activate checkout, otherwise activate checkin
-    //if user has not checked in then activate checkin, 
-    //if user checked in and and checked out from the last 24 hours then activate checkin
+
     const checkedIn = activityData?.check_in_time !== null && (activityData?.check_out_time === null || (new Date().getTime() - new Date(activityData?.check_out_time!).getTime()) < 24 * 60 * 60 * 1000);
 
     const handleGoBack = () => {
@@ -98,9 +104,9 @@ const ScannedProject = (props: Props) => {
                     headerTitle: 'Current Project Details',
                     headerLeft: () => (
                         <TouchableOpacity onPress={handleGoBack}>
-                          <IconButton icon="arrow-left" size={24} />
+                            <IconButton icon="arrow-left" size={24} />
                         </TouchableOpacity>
-                      ),
+                    ),
                 }}
             />
             <ScrollView contentContainerStyle={styles.scrollView}>

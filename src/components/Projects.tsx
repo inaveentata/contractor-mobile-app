@@ -4,6 +4,7 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../providers/AuthProvider';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useQuery } from '@tanstack/react-query';
 
 
 export type ProjectProps = {
@@ -24,31 +25,58 @@ export type ProjectProps = {
 const Projects = () => {
   const router = useRouter();
   const { profile } = useAuth();
-  const [projects, setProjects] = useState<ProjectProps[] | null>(null);
+  // const [projects, setProjects] = useState<ProjectProps[] | null>(null);
+
+  const { data: projectsData, refetch } = useQuery({
+    queryKey: ['projects', profile?.id, router],
+    queryFn: async () => {
+      if (profile?.id === null) return;
+      const { data, error } = await supabase
+        .from('activity')
+        .select('projects!inner(*)').eq('profile_id', profile.id);
+
+      if (error) {
+        console.error('Error fetching projects:', error);
+        return;
+      }
+
+      const uniqueProjects = Array.from(
+        new Map(data.map((activity: any) => [activity.projects.id, activity.projects])).values()
+      );
+      //@ts-ignore
+      return uniqueProjects;
+    },
+  });
 
   useFocusEffect(
     useCallback(() => {
-      const fetchProjects = async () => {
-        if (profile?.id === null) return;
-        const { data, error } = await supabase
-          .from('activity')
-          .select('projects!inner(*)').eq('profile_id', profile.id);
-
-        if (error) {
-          console.error('Error fetching projects:', error);
-          return;
-        }
-
-        const uniqueProjects = Array.from(
-          new Map(data.map((activity: any) => [activity.projects.id, activity.projects])).values()
-        );
-        //@ts-ignore
-        setProjects(uniqueProjects);
-      };
-
-      fetchProjects();
-    }, [profile?.id])
+      refetch();
+    }, [refetch])
   );
+
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     const fetchProjects = async () => {
+  //       if (profile?.id === null) return;
+  //       const { data, error } = await supabase
+  //         .from('activity')
+  //         .select('projects!inner(*)').eq('profile_id', profile.id);
+
+  //       if (error) {
+  //         console.error('Error fetching projects:', error);
+  //         return;
+  //       }
+
+  //       const uniqueProjects = Array.from(
+  //         new Map(data.map((activity: any) => [activity.projects.id, activity.projects])).values()
+  //       );
+  //       //@ts-ignore
+  //       setProjects(uniqueProjects);
+  //     };
+
+  //     fetchProjects();
+  //   }, [profile?.id])
+  // );
 
   const handleProjectPress = (project: ProjectProps) => {
     router.replace({
@@ -60,7 +88,7 @@ const Projects = () => {
     <View style={styles.container}>
       <Text style={styles.header}>All Projects you visited</Text>
       <ScrollView contentContainerStyle={styles.scrollView}>
-        {projects && projects?.length > 0 ? projects?.map((project) => (
+        {projectsData && projectsData?.length > 0 ? projectsData?.map((project) => (
           <View key={project.id} style={styles.card}>
             <FontAwesome name="building-o" size={60} color="black" style={styles.projectImage} />
 

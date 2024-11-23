@@ -19,17 +19,17 @@ const SignInScreen = () => {
 
   const router = useRouter();
 
-  const handleOnPressSignUp = () => { 
+  const handleOnPressSignUp = () => {
     router.push('/sign-up');
   };
 
   async function signInWithEmail() {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error, data } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-
+    console.log('data from sign in:', data);
     if (error) Alert.alert(error.message);
     setLoading(false);
   }
@@ -90,9 +90,9 @@ const SignInScreen = () => {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
             <Text style={{ fontSize: 16 }}>Don't have an account?</Text>
             <TouchableOpacity onPress={handleOnPressSignUp}>
-            <Text style={styles.textButton}>
-              Sign up
-            </Text>
+              <Text style={styles.textButton}>
+                Sign up
+              </Text>
             </TouchableOpacity>
           </View>
         </View>

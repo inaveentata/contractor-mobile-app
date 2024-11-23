@@ -25,17 +25,24 @@ export default function AuthProvider({ children }: PropsWithChildren) {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
 
+
+
+
+
   useEffect(() => {
     const fetchSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-
       setSession(session);
       if (session) {
         // fetch current user
         const { data } = await supabase.from('profiles').select('*').eq('auth_id', session.user.id).single();
         setProfile(data || null);
-      }
 
+        if (!data) {
+          const { data } = await supabase.from('profiles').insert({ email: session.user.email, auth_id: session.user.id });
+          setProfile(data || null);
+        }
+      }
       setLoading(false);
     };
 

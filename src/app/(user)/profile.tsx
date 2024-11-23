@@ -5,14 +5,40 @@ import { supabase } from '@/src/lib/supabase';
 import { router, Stack, useNavigation } from 'expo-router';
 import { IconButton } from 'react-native-paper';
 import { useAuth } from '@/src/providers/AuthProvider';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export default function ProfilePage() {
-  const {profile} = useAuth();
+  const { profile } = useAuth();
   const navigation = useNavigation();
   const [isEditMode, setIsEditMode] = useState(false);
   const [name, setName] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const [mobile, setMobile] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+
+  async function updateProfile({ name, email, mobile }: { name: string, email: string, mobile: string; }) {
+    const { error } = await supabase.from('profiles').update({
+      name,
+      email,
+      mobile_number: mobile
+    }).eq('id', profile?.id);
+    if (error) {
+      console.log(error);
+    }
+  }
+
+  const updateProfileMutation = useMutation({
+    mutationFn: updateProfile,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      alert("Profile updated successfully!");
+
+    },
+    onError: (error) => {
+      console.log(error);
+    }
+  });
 
   useEffect(() => {
     if (profile) {
@@ -21,10 +47,10 @@ export default function ProfilePage() {
       setMobile(profile.mobile_number);
     }
   }, [profile]);
-  
+
   const handleGoBack = () => {
-      navigation.goBack();
-  }
+    navigation.goBack();
+  };
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     router.push('/sign-in');
@@ -41,15 +67,16 @@ export default function ProfilePage() {
   };
 
 
-  const toggleEditMode = async() => {
+  const toggleEditMode = async () => {
     if (isEditMode) {
-      // Save/update logic can be added here
-      const { error } = await supabase.from('profiles').update({
-        name,
-        email,
-        mobile_number: mobile
-      }).eq('id', profile?.id);
-      alert("Profile updated successfully!");
+      //if any of the fields are changed
+      if (name !== profile?.name || email !== profile?.email || mobile !== profile?.mobile_number) {
+        if(!name || !email || !mobile){
+          alert("Please fill in all the fields");
+          return;
+        }
+        updateProfileMutation.mutate({ name, email, mobile });
+      }
     }
     setIsEditMode(!isEditMode);
   };
@@ -105,7 +132,7 @@ export default function ProfilePage() {
         onPress={handleSignOut}
         style={styles.signOutButton}
         text='Sign Out'
-     />
+      />
     </View>
   );
 }
@@ -154,7 +181,7 @@ const styles = StyleSheet.create({
     color: '#17C6ED',
     marginRight: 15,
   },
-  initialsContainer: {  
+  initialsContainer: {
     width: 100,
     height: 100,
     borderRadius: 50,
@@ -163,7 +190,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: '#ccc',
-    marginBottom: 20, 
+    marginBottom: 20,
     marginTop: 20,
     alignSelf: 'center'
   },
