@@ -7,6 +7,8 @@ import { IconButton } from 'react-native-paper';
 import { supabase } from '../lib/supabase';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { ProjectProps } from './Projects';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import { Colors } from '../constants/Colors';
 
 const ProjectDetails = () => {
   const navigation = useNavigation();
@@ -42,16 +44,18 @@ const ProjectDetails = () => {
   }
 
   if (!project) {
-    return <Text>Loading...</Text>;
+    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <AntDesign name="loading1" size={24} color={Colors.light.tint} />
+    </View>;
   }
 
   const handleGoBack = () => {
-    if(navigation.canGoBack()) {
+    if (navigation.canGoBack()) {
       navigation.goBack();
-    }else{
+    } else {
       router.replace('/(user)/(home)');
     }
-  }
+  };
   return (
     <>
       {
@@ -128,7 +132,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   backButtonText: {
-    color: '#00A4F2',
+    color: Colors.light.tint,
     fontSize: 16,
   },
   header: {
@@ -206,10 +210,10 @@ const styles = StyleSheet.create({
   },
   statusValue: {
     fontSize: 14,
-    color: '#00A4F2',
+    color: Colors.light.tint,
   },
   backToProjectsButton: {
-    backgroundColor: '#00A4F2',
+    backgroundColor: Colors.light.tint,
     paddingVertical: 15,
     borderRadius: 5,
     alignItems: 'center',

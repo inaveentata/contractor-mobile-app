@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../providers/AuthProvider';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useQuery } from '@tanstack/react-query';
+import { Colors } from '../constants/Colors';
 
 
 export type ProjectProps = {
@@ -172,11 +173,11 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   markButtonText: {
-    color: '#17C6ED',
+    color: Colors.light.tint,
     fontSize: 14,
   },
   detailsButton: {
-    backgroundColor: '#17C6ED',
+    backgroundColor: Colors.light.tint,
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 5,

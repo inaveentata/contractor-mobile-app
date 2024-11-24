@@ -6,6 +6,7 @@ import { router, Stack, useNavigation } from 'expo-router';
 import { IconButton } from 'react-native-paper';
 import { useAuth } from '@/src/providers/AuthProvider';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Colors } from '@/src/constants/Colors';
 
 export default function ProfilePage() {
   const { profile } = useAuth();
@@ -54,6 +55,7 @@ export default function ProfilePage() {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     router.push('/sign-in');
+    console.log('Signed out');
   };
 
   //generate a two letter word from the user's name
@@ -71,7 +73,7 @@ export default function ProfilePage() {
     if (isEditMode) {
       //if any of the fields are changed
       if (name !== profile?.name || email !== profile?.email || mobile !== profile?.mobile_number) {
-        if(!name || !email || !mobile){
+        if (!name || !email || !mobile) {
           alert("Please fill in all the fields");
           return;
         }
@@ -174,11 +176,11 @@ const styles = StyleSheet.create({
   },
   signOutButton: {
     marginTop: 30,
-    backgroundColor: '#17C6ED',
+    backgroundColor: Colors.light.tint,
   },
   editButtonText: {
     fontSize: 16,
-    color: '#17C6ED',
+    color: Colors.light.tint,
     marginRight: 15,
   },
   initialsContainer: {
