@@ -12,21 +12,20 @@ type AuthData = {
   session: Session | null;
   loading: boolean;
   profile: any;
+  setSession: React.Dispatch<React.SetStateAction<Session | null>>
 };
 
 const AuthContext = createContext<AuthData>({
   session: null,
   loading: true,
-  profile: null
+  profile: null,
+  setSession: () => {},
 });
 
 export default function AuthProvider({ children }: PropsWithChildren) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
-
-
-
 
 
   useEffect(() => {
@@ -50,11 +49,13 @@ export default function AuthProvider({ children }: PropsWithChildren) {
     supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
-  }, []);
+  }, [session]);
+
+
 
   return (
     <AuthContext.Provider
-      value={{ session, loading, profile }}
+      value={{ session, loading, profile, setSession }}
     >
       {children}
     </AuthContext.Provider>

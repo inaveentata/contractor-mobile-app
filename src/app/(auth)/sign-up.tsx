@@ -4,6 +4,7 @@ import Button from '../../components/Button';
 import { Colors } from '../../constants/Colors';
 import { Stack, useRouter } from 'expo-router';
 import { supabase } from '@/src/lib/supabase';
+import { useAuth } from '@/src/providers/AuthProvider';
 
 const SignUpScreen = () => {
   const [email, setEmail] = useState('');
@@ -11,15 +12,20 @@ const SignUpScreen = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const { setSession } = useAuth();
+
   const handleOnPressSignIn = () => {
     router.push('/sign-in');
   };
 
   async function signUpWithEmail() {
     setLoading(true);
-    const { error, data } = await supabase.auth.signUp({ email, password });
+    const { error } = await supabase.auth.signUp({ email, password });
 
-    if (error) Alert.alert(error.message);
+    if (error) { Alert.alert(error.message); } else {
+      const { data: { session } } = await supabase.auth.getSession();
+      setSession(session);
+    }
     setLoading(false);
   }
 
@@ -30,7 +36,11 @@ const SignUpScreen = () => {
       }}
       >
         <View style={styles.container}>
-          <Stack.Screen options={{ title: 'RJ Bird Builders', headerShown: true, headerBackVisible: false }} />
+          <Stack.Screen options={{ title: 'RJ Bird Building', headerShown: false, headerBackVisible: false }} />
+          <View style={styles.header}>
+            <Image source={require("../../../assets/images/logo-text-icon.png")} style={styles.logo} />
+            <Text style={styles.welcomeTitle}>Welcome to RJ Bird Building!</Text>
+          </View>
           <View
             style={{
               flex: 1,
@@ -98,6 +108,21 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     flex: 1,
     paddingBottom: 80,
+  },
+  logo: {
+    width: 250,
+    height: 80,
+  },
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 50,
+    gap: 6,
+  },
+  welcomeTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
   },
   title: {
     fontSize: 24,

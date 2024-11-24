@@ -8,6 +8,7 @@ import Button from '@/src/components/Button';
 import { Colors } from '@/src/constants/Colors';
 import { Stack, useRouter } from 'expo-router';
 import { supabase } from '@/src/lib/supabase';
+import { useAuth } from '@/src/providers/AuthProvider';
 
 
 
@@ -16,6 +17,7 @@ const SignInScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const { setSession } = useAuth();
 
   const router = useRouter();
 
@@ -25,12 +27,16 @@ const SignInScreen = () => {
 
   async function signInWithEmail() {
     setLoading(true);
-    const { error, data } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-    console.log('data from sign in:', data);
-    if (error) Alert.alert(error.message);
+    if (error) {
+      Alert.alert(error.message);
+    } else {
+      const { data: { session } } = await supabase.auth.getSession();
+      setSession(session);
+    }
     setLoading(false);
   }
 
@@ -41,8 +47,10 @@ const SignInScreen = () => {
       }}
       >
         <View style={styles.container}>
-          <Stack.Screen options={{ title: 'RJ Bird Builders' }} />
-          <Text style={styles.title}>Welcome Back!</Text>
+          <Stack.Screen options={{ title: 'RJ Bird Building' }} />
+          <View style={styles.header}>
+            <Image source={require("../../../assets/images/logo-text-icon.png")} style={styles.logo} />
+          </View>
           <View
             style={{
               flex: 1,
@@ -59,7 +67,7 @@ const SignInScreen = () => {
               source={require("../../../assets/images/login.png")}
             />
           </View>
-
+          <Text style={styles.title}>Welcome Back!</Text>
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Email Address</Text>
             <TextInput
@@ -109,6 +117,16 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingBottom: 80,
 
+  },
+  logo: {
+    width: 250,
+    height: 80,
+  },
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: 20,
+    gap: 6,
   },
   title: {
     fontSize: 24,
