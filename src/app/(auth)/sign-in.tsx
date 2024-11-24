@@ -25,6 +25,10 @@ const SignInScreen = () => {
     router.push('/sign-up');
   };
 
+  const handleOnPressForgotPassword = () => {
+    router.push('/reset-password');
+  };
+
   async function signInWithEmail() {
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
@@ -95,13 +99,23 @@ const SignInScreen = () => {
             disabled={loading}
             text={loading ? 'Signing in...' : 'Sign in'}
           />
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-            <Text style={{ fontSize: 16 }}>Don't have an account?</Text>
-            <TouchableOpacity onPress={handleOnPressSignUp}>
-              <Text style={styles.textButton}>
-                Sign up
-              </Text>
-            </TouchableOpacity>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+              <TouchableOpacity onPress={handleOnPressForgotPassword}>
+                <Text style={{ ...styles.textButton, textDecorationLine: 'underline', color: Colors.light.tint }}>
+                  Forgot Password
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+              <Text style={{ fontSize: 16 }}>Don't have an account?</Text>
+              <TouchableOpacity onPress={handleOnPressSignUp}>
+                <Text style={styles.textButton}>
+                  Sign up
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </ScrollView>

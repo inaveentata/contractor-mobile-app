@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Colors } from '../constants/Colors';
 
 const SignInSignUpButtons = () => {
   const router = useRouter();
@@ -58,10 +59,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#17C6ED',
+    borderColor: Colors.light.tint,
   },
   activeButton: {
-    backgroundColor: '#17C6ED', // Active button background color
+    backgroundColor: Colors.light.tint, // Active button background color
   },
   buttonText: {
     fontSize: 16,
