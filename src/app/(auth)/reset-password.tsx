@@ -7,12 +7,13 @@ import { supabase } from '@/src/lib/supabase';
 
 const ResetPasswordScreen = () => {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   async function signUpWithEmail() {
     setLoading(true);
-    const { error } = await supabase.auth.signUp({ email, password });
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: 'oomtech://reset-password',
+    });
 
     if (error) Alert.alert(error.message);
     setLoading(false);
@@ -55,28 +56,17 @@ const ResetPasswordScreen = () => {
               placeholderTextColor={"#7e8a8c"}
             />
           </View>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>New Password</Text>
-            <TextInput
-              value={password}
-              onChangeText={setPassword}
-              placeholder="Enter your new password"
-              style={styles.input}
-              secureTextEntry
-              placeholderTextColor={"#7e8a8c"}
-            />
-          </View>
           <Button
             onPress={signUpWithEmail}
             disabled={loading}
             text={loading ? 'Resetting password...' : 'Reset Password'}
           />
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+          {/* <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
             <Text style={{ fontSize: 16 }}>Back to </Text>
             <Link href="/sign-in" style={styles.textButton}>
               Sign in
             </Link>
-          </View>
+          </View> */}
 
         </View>
       </ScrollView>

@@ -6,6 +6,7 @@ import { supabase } from '@/src/lib/supabase';
 import Button from '@/src/components/Button';
 import { IconButton } from 'react-native-paper';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Colors } from '@/src/constants/Colors';
 
 type Props = {};
 type ProjectDetailsProps = {
@@ -33,24 +34,24 @@ const CheckoutScreenById = (props: Props) => {
             const { data } = await supabase.from('projects').select('*').eq('id', checkoutId).single();
             return data;
         },
-        }
+    }
     );
 
-const checkoutMutation = useMutation({
-    mutationFn: async () => {
-        const { data, error } = await supabase.from('activity').update({
-            check_out_time: new Date().toISOString(),
-        }).eq('id', activityId).select();
-        if (error) {
-            console.log(error);
-        }
-    },
-    onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['activity', checkoutId]});
-        queryClient.invalidateQueries({ queryKey: ['projects', checkoutId]});
-        router.replace('/(user)/(home)');
-    },
-})
+    const checkoutMutation = useMutation({
+        mutationFn: async () => {
+            const { data, error } = await supabase.from('activity').update({
+                check_out_time: new Date().toISOString(),
+            }).eq('id', activityId).select();
+            if (error) {
+                console.log(error);
+            }
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['activity', checkoutId] });
+            queryClient.invalidateQueries({ queryKey: ['projects', checkoutId] });
+            router.replace('/(user)/(home)');
+        },
+    });
     const handleConfirmCheckout = () => {
         checkoutMutation.mutate();
     };
@@ -71,6 +72,8 @@ const checkoutMutation = useMutation({
             params: { scannedProjectId: checkoutId as string }
         });
     };
+
+    
 
     return (
         <View style={styles.container}>
@@ -117,7 +120,7 @@ const checkoutMutation = useMutation({
                             <Checkbox
                                 status={item.checked ? 'checked' : 'unchecked'}
                                 onPress={() => updateChecklistItem(item.id, !item.checked)}
-                                color='#17c6ed'
+                                color={Colors.light.tint}
                             />
                             <Text>
                                 {item.name}

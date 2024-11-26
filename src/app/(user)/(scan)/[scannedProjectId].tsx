@@ -6,6 +6,8 @@ import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/providers/AuthProvider';
 import { IconButton } from 'react-native-paper';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import * as WebBrowser from 'expo-web-browser';
+import { Colors } from '@/src/constants/Colors';
 
 
 
@@ -28,13 +30,13 @@ const ScannedProject = (props: Props) => {
     const { data: projectData } = useQuery({
         queryKey: ['projects', scannedProjectId],
         queryFn: async () => {
-            if (scannedProjectId === null) return null ;
+            if (scannedProjectId === null) return null;
             const { data, error } = await supabase
                 .from('projects').select('*').eq('id', scannedProjectId).single();
 
             if (error) {
                 console.log('Error fetching projects:', error);
-                return null
+                return null;
             }
             return data;
         },
@@ -43,13 +45,13 @@ const ScannedProject = (props: Props) => {
     const { data: activityData } = useQuery({
         queryKey: ['activity', scannedProjectId],
         queryFn: async () => {
-            if (scannedProjectId === null) return null
+            if (scannedProjectId === null) return null;
             const { data, error } = await supabase
                 .from('activity').select('*').eq('project_id', scannedProjectId).single();
 
             if (error) {
                 console.log('Error fetching activity:', error);
-                return null
+                return null;
             }
 
             return data;
@@ -94,6 +96,20 @@ const ScannedProject = (props: Props) => {
 
     const handleGoBack = () => {
         router.push('/(user)/(scan)');
+    };
+
+    const { data: pdfUrl } = useQuery({
+        queryKey: ['pdfUrl'],
+        queryFn: async () => {
+            const { data: { publicUrl: pdfUrl } } = await supabase.storage
+                .from('documents').getPublicUrl('test_project.pdf');
+            return pdfUrl;
+        }
+    });
+
+    const openPDF = async () => {
+        if (!pdfUrl) return;
+        await WebBrowser.openBrowserAsync(pdfUrl);
     };
 
     return (
@@ -142,24 +158,30 @@ const ScannedProject = (props: Props) => {
                 <Text style={styles.detailsText}>
                     Please ensure you have gone through the following documents prior to check-in. These documents are necessary for the check-in process.
                 </Text>
-                <View>
+                {/* <View>
                     {
                         documents?.map((document) => (
                             <View style={styles.documentItem} key={document.id}>
                                 <Text style={styles.documentText}>{document.name}</Text>
-                                {/* <Button title="View" onPress={() => handleViewDocument(item.id)} /> also change the status of the document or button */}
+                                <Button title="View" onPress={() => handleViewDocument(item.id)} /> also change the status of the document or button
                                 <TouchableOpacity style={styles.confirmButton}>
                                     <Text style={styles.confirmButtonText}>View</Text>
                                 </TouchableOpacity>
                             </View>
                         ))
                     }
+                </View> */}
+                <View style={styles.documentItem}>
+                    <Text style={styles.documentText}>Open Induction Document</Text>
+                    <TouchableOpacity style={styles.confirmButton}>
+                        <Text style={styles.confirmButtonText} onPress={openPDF}>View</Text>
+                    </TouchableOpacity>
                 </View>
                 <View style={styles.checkboxContainer}>
                     <Checkbox
                         status={isLocationCorrect ? 'checked' : 'unchecked'}
                         onPress={() => setIsLocationCorrect(!isLocationCorrect)}
-                        color='#17c6ed'
+                        color={Colors.light.tint}
                     />
                     <Text>
                         Are you in the correct project location ?
