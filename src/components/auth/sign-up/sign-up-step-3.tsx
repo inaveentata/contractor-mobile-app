@@ -1,8 +1,9 @@
 import React from "react";
-import { View, Text, TextInput, Button, StyleSheet } from "react-native";
+import { View, Text, TextInput, StyleSheet } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
+import Button from '@/src/components/Button';
 
 interface Step3Props {
     onSubmit: () => void;
@@ -22,9 +23,9 @@ const Step3 = ({ onSubmit }: Step3Props) => {
 
   return (
     <View style={styles.container}>
-      <Text>Set Password</Text>
-      <View>
-        <Text>Password</Text>
+      <Text style={styles.title}>Set Password</Text>
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Password</Text>
         <Controller
           control={control}
           name="password"
@@ -40,8 +41,8 @@ const Step3 = ({ onSubmit }: Step3Props) => {
         />
         {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
       </View>
-      <View>
-        <Text>Confirm Password</Text>
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Confirm Password</Text>
         <Controller
           control={control}
           name="confirmPassword"
@@ -57,15 +58,33 @@ const Step3 = ({ onSubmit }: Step3Props) => {
         />
         {errors.confirmPassword && <Text style={styles.error}>{errors.confirmPassword.message}</Text>}
       </View>
-      <Button title="Submit" onPress={handleSubmit(onSubmit)} />
+      <Button text="Submit" onPress={handleSubmit(onSubmit)} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { padding: 20 },
-  input: { borderWidth: 1, padding: 10, borderRadius: 5, marginBottom: 5 },
+  container: { padding: 20,  borderWidth: 1, borderRadius: 5, boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)", borderColor: "rgba(0, 0, 0, 0.1)", gap: 20 },
+  title: { fontSize: 24, fontWeight: "bold", marginBottom: 20, textAlign: "center" },
   error: { color: "red", fontSize: 12 },
+  inputGroup: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 10,
+      },
+  label: {
+    fontWeight: "500",
+    fontSize: 16,
+    color: "#193238"
+  },
+  input: {
+    borderWidth: 0,
+    padding: 16,
+    backgroundColor: '#EBEDED',
+    borderRadius: 8,
+    color: "#7e8a8c"
+
+  },
 });
 
 export default Step3;

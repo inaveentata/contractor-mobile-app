@@ -41,6 +41,7 @@
     "react-hook-form": "^7.54.0",
     "react-native": "0.76.1",
     "react-native-gesture-handler": "~2.20.2",
+    "react-native-otp-entry": "^1.8.0",
     "react-native-paper": "^5.12.5",
     "react-native-pdf": "^6.7.5",
     "react-native-rapi-ui": "^0.2.1",

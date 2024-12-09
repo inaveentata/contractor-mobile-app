@@ -9,7 +9,7 @@ import { Stack, useRouter } from 'expo-router';
 
 
 export default function SignUpForm() {
-    const [steps, setSteps] = useState(0);
+    const [steps, setSteps] = useState(2);
     const [userData, setUserData] = useState({
         email: '',
         firstName: '',

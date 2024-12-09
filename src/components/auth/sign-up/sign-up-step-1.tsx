@@ -30,13 +30,14 @@ const Step1 = ({ onNext, setUserData }: Step1Props) => {
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = (data) => {
+  const onSubmit = (data:any) => {
     setUserData(data);// Pass data to the next step
     onNext();
   };
 
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Enter Details</Text>
       <View style={styles.row}>
         <View style={styles.inputWrapper}>
           <Text style={styles.label}>First Name</Text>
@@ -111,8 +112,9 @@ const Step1 = ({ onNext, setUserData }: Step1Props) => {
 };
 
 const styles = StyleSheet.create({
-  container: { padding: 20 },
+  container: { padding: 20,  borderWidth: 1, borderRadius: 5, boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)", borderColor: "rgba(0, 0, 0, 0.1)", gap: 20 },
   row: { flexDirection: "row", justifyContent: "space-between", gap: 10 },
+  title: { fontSize: 24, fontWeight: "bold", marginBottom: 20, textAlign: "center" },
   inputWrapper: { flex: 1 },
   error: { color: "red", fontSize: 12 },
   textButton: {
