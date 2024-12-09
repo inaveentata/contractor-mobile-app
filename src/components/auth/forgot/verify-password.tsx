@@ -4,13 +4,13 @@ import { OtpInput } from "react-native-otp-entry";
 import { Colors } from "@/src/constants/Colors";
 import { verify6DigitCode } from "./actions";
 
-interface Step2Props {
+interface VerifyPasswordProps {
   onNext: () => void;
   email: string;
   
 }
 
-const Step2 = ({ onNext, email }: Step2Props) => {
+const VerifyPassword = ({ onNext, email }: VerifyPasswordProps ) => {
   const [otp, setOtp] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -172,4 +172,4 @@ const styles = StyleSheet.create({
 
 });
 
-export default Step2;
+export default VerifyPassword;

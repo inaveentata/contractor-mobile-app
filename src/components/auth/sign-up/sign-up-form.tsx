@@ -9,39 +9,21 @@ import { Stack, useRouter } from 'expo-router';
 
 
 export default function SignUpForm() {
-    const [steps, setSteps] = useState(2);
+    const [steps, setSteps] = useState(0);
     const [userData, setUserData] = useState({
         email: '',
         firstName: '',
         lastName: '',
         phoneNumber: '',
     });
-
-
-    //methods for step2
-
-
-    const handleResendCode = () => {
-        console.log('Resend code');
-    };
-
-    const get6DigitCode = (code) => {
-    };
-
     const handleNext = () => {
         setSteps(prevStep => prevStep + 1);
     };
 
-
-    //methods for step3
-    const handleSubmit = () => {
-
-    };
-
     const pages = [
         <Step1 key={0} onNext={handleNext} setUserData={setUserData} />,
-        <Step2 key={1} onNext={handleNext} onResendCode={handleResendCode} get6DigitCode={get6DigitCode} />,
-        <Step3 key={2} onSubmit={handleSubmit} />];
+        <Step2 key={1} onNext={handleNext} email={userData.email} />,
+        <Step3 key={2} userData={userData} />];
 
 
     const currentPage = pages[steps];

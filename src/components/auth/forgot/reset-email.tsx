@@ -1,33 +1,23 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
-import { useForm, Controller, set } from "react-hook-form";
+import { useForm, Controller} from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import Button from '@/src/components/Button';
 import { Colors } from '@/src/constants/Colors';
-import { registerUser } from "./actions";
+import { forgotPassword } from "./actions";
 
 
-interface Step1Props {
-  setUserData: React.Dispatch<React.SetStateAction<{
-    email: string;
-    firstName: string;
-    lastName: string;
-    phoneNumber: string;
-  }>>;
+interface ResetEmailProps {
   onNext: () => void;
+  setEmail: React.Dispatch<React.SetStateAction<string>>
 }
 
 const schema = Yup.object().shape({
-  firstName: Yup.string().required("First name is required"),
-  lastName: Yup.string().required("Last name is required"),
-  mobileNumber: Yup.string()
-    .required("Mobile number is required")
-    .matches(/^[0-9]{10}$/, "Enter a valid 10-digit mobile number"),
   email: Yup.string().email("Enter a valid email").required("Email is required"),
 });
 
-const Step1 = ({ onNext, setUserData }: Step1Props) => {
+const ResetEmail = ({ onNext, setEmail }: ResetEmailProps) => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   
@@ -37,11 +27,11 @@ const Step1 = ({ onNext, setUserData }: Step1Props) => {
   });
 
   const onSubmit = async(data:any) => {
-    setUserData(data);
+    setEmail(data.email);
     setLoading(true);
     setError(null);
     try{
-      const { error, message } = await registerUser({ email: data.email });
+      const { error, message } = await forgotPassword({ email: data.email });
       if (error) {
         setError(message);
         console.error("Error registering user:", error);
@@ -62,58 +52,7 @@ const Step1 = ({ onNext, setUserData }: Step1Props) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Enter Details</Text>
-      <View style={styles.row}>
-        <View style={styles.inputWrapper}>
-          <Text style={styles.label}>First Name</Text>
-          <Controller
-            control={control}
-            name="firstName"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                style={styles.input}
-                placeholder="First Name"
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
-          />
-          {errors.firstName && <Text style={styles.error}>{errors.firstName.message}</Text>}
-        </View>
-        <View style={styles.inputWrapper}>
-          <Text style={styles.label}>Last Name</Text>
-          <Controller
-            control={control}
-            name="lastName"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                style={styles.input}
-                placeholder="Last Name"
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
-          />
-          {errors.lastName && <Text style={styles.error}>{errors.lastName.message}</Text>}
-        </View>
-      </View>
-      <View>
-        <Text style={styles.label}>Mobile Number</Text>
-        <Controller
-          control={control}
-          name="mobileNumber"
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              style={styles.input}
-              placeholder="Mobile Number"
-              keyboardType="phone-pad"
-              onChangeText={onChange}
-              value={value}
-            />
-          )}
-        />
-        {errors.mobileNumber && <Text style={styles.error}>{errors.mobileNumber.message}</Text>}
-      </View>
-      <View>
+      <View style={styles.inputGroup}>
         <Text style={styles.label}>Email</Text>
         <Controller
           control={control}
@@ -165,6 +104,11 @@ const styles = StyleSheet.create({
     color: "#7e8a8c"
 
   },
+  inputGroup: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 10,
+  },
 });
 
-export default Step1;
+export default ResetEmail;

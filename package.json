@@ -50,6 +50,7 @@
     "react-native-screens": "~4.0.0",
     "react-native-url-polyfill": "^2.0.0",
     "react-native-web": "~0.19.10",
+    "resend": "^4.0.1",
     "yup": "^1.5.0"
   },
   "devDependencies": {

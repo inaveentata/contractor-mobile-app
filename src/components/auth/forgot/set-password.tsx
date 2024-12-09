@@ -4,16 +4,11 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import Button from '@/src/components/Button';
-import { setPassword } from "./actions";
+import { resetPassword } from "./actions";
 import { useRouter } from 'expo-router';
 
-interface Step3Props {
-  userData: {
-    email: string;
-    firstName: string;
-    lastName: string;
-    phoneNumber: string;
-  };
+interface SetPasswordProps {
+ email: string;
 }
 const schema = Yup.object().shape({
   password: Yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
@@ -22,7 +17,7 @@ const schema = Yup.object().shape({
     .required("Confirm Password is required"),
 });
 
-const Step3 = ({ userData }: Step3Props) => {
+const SetPassword = ({ email }: SetPasswordProps) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,11 +29,11 @@ const Step3 = ({ userData }: Step3Props) => {
     setLoading(true);
     setError(null);
     try {
-      const { error, message } = await setPassword({ email: userData.email, password: data.password, firstName: userData.firstName, lastName: userData.lastName, phoneNumber: userData.phoneNumber });
+      const { error, message } = await resetPassword({ email: email, password: data.password });
       if (error) {
         setError(message);
       } else {
-        router.push('/(user)');
+        router.push('/sign-in');
       }
     } catch (error) {
       setError((error as Error).message);
@@ -118,4 +113,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Step3;
+export default SetPassword;
